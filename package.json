@@ -1,0 +1,33 @@
+{
+  "name": "tezbridge-crypto",
+  "version": "1.0.0",
+  "description": "The TezBridge crypto library for Tezos blockchain in JavaScript with Flow type system",
+  "main": "dist/index.js",
+  "scripts": {
+    "flow": "flow",
+    "dev": "parcel watch src/index.js",
+    "test": "flow && parcel build test/index.js --target node -o test.js && node dist/test.js",
+    "build": "rm -rf dist && rm -rf .cache && flow && parcel build src/index.js",
+    "publish": "npm run build && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tezbridge/tezbridge-crypto.git"
+  },
+  "author": "catsigma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tezbridge/tezbridge-crypto/issues"
+  },
+  "homepage": "https://github.com/tezbridge/tezbridge-crypto#readme",
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-proposal-class-properties": "^7.2.1",
+    "@babel/plugin-transform-flow-strip-types": "^7.2.0",
+    "flow-bin": "^0.88.0"
+  },
+  "dependencies": {
+    "bip39": "^2.5.0",
+    "bs58check": "^2.1.2"
+  }
+}

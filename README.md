@@ -1,1 +1,1 @@
-# tezbridge-signer
+# tezbridge-crypto
