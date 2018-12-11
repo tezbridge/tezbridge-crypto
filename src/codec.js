@@ -2,6 +2,43 @@
 
 import type { TezJSON } from './types'
 
+export const prefix = {
+  block_hash: new Uint8Array([1, 52]), // B(51)
+  operation_hash: new Uint8Array([5, 116]), // o(51)
+  operation_list_hash: new Uint8Array([133, 233]), // Lo(52)
+  operation_list_list_hash: new Uint8Array([29, 159, 109]), // LLo(53)
+  protocol_hash: new Uint8Array([2, 170]), // P(51)
+  context_hash: new Uint8Array([79, 199]), // Co(52)
+
+  ed25519_public_key_hash: new Uint8Array([6, 161, 159]), // tz1(36)
+  secp256k1_public_key_hash: new Uint8Array([6, 161, 161]), // tz2(36)
+  p256_public_key_hash: new Uint8Array([6, 161, 164]), // tz3(36)
+
+  cryptobox_public_key_hash: new Uint8Array([153, 103]), // id(30)
+
+  ed25519_seed: new Uint8Array([13, 15, 58, 7]), // edsk(54)
+  ed25519_public_key: new Uint8Array([13, 15, 37, 217]), // edpk(54)
+  secp256k1_secret_key: new Uint8Array([17, 162, 224, 201]), // spsk(54)
+  p256_secret_key: new Uint8Array([16, 81, 238, 189]), // p2sk(54)
+
+  ed25519_encrypted_seed: new Uint8Array([7, 90, 60, 179, 41]), // edesk(88)
+  secp256k1_encrypted_secret_key: new Uint8Array([9, 237, 241, 174, 150]), // spesk(88)
+  p256_encrypted_secret_key: new Uint8Array([9, 48, 57, 115, 171]), // p2esk(88)
+
+  secp256k1_public_key: new Uint8Array([3, 254, 226, 86]), // sppk(55)
+  p256_public_key: new Uint8Array([3, 178, 139, 127]), // p2pk(55)
+  secp256k1_scalar: new Uint8Array([38, 248, 136]), // SSp(53)
+  secp256k1_element: new Uint8Array([5, 92, 0]), // GSp(54)
+
+  ed25519_secret_key: new Uint8Array([43, 246, 78, 7]), // edsk(98)
+  ed25519_signature: new Uint8Array([9, 245, 205, 134, 18]), // edsig(99)
+  secp256k1_signature: new Uint8Array([13, 115, 101, 19, 63]), // spsig1(99)
+  p256_signature: new Uint8Array([54, 240, 44, 52]), // p2sig(98)
+  generic_signature: new Uint8Array([4, 130, 43]), // sig(96)
+
+  chain_id: new Uint8Array([7, 82, 0]) // Net(15)
+}
+
 const op_mapping = {
   '00':'parameter',
   '01':'storage',
