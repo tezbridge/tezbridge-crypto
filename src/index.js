@@ -1,7 +1,7 @@
 // @flow
 
-import { decodeBytes } from './codec'
+import codec from './codec'
 
 export default {
-  codec: { decodeBytes }
+  codec
 }

@@ -1,6 +1,23 @@
 // @flow
 
 import type { TezJSON } from './types'
+import bs58check from 'bs58check'
+
+
+export function bytesConcat(x : Uint8Array, y : Uint8Array) {
+  const tmp = new Uint8Array(x.length + y.length)
+  tmp.set(x, 0)
+  tmp.set(y, x.length)
+  return tmp
+}
+
+export function bs58check_encode(prefix : Uint8Array, input : Uint8Array) {
+  return bs58check.encode(bytesConcat(prefix, input))
+}
+
+export function bs58check_decode(prefix : Uint8Array, input : string) {
+  return bs58check.decode(input).slice(prefix.length)
+}
 
 export const prefix = {
   block_hash: new Uint8Array([1, 52]), // B(51)
@@ -37,6 +54,21 @@ export const prefix = {
   generic_signature: new Uint8Array([4, 130, 43]), // sig(96)
 
   chain_id: new Uint8Array([7, 82, 0]) // Net(15)
+}
+
+export const watermark = {
+  block_header(chain_id : Uint8Array) {
+    return bytesConcat(new Uint8Array([1]), chain_id)
+  },
+  endorsement(chain_id : Uint8Array) {
+    return bytesConcat(new Uint8Array([2]), chain_id)
+  },
+  operation() {
+    return new Uint8Array([3])
+  },
+  custom(x : Uint8Array) {
+    return x
+  }
 }
 
 const op_mapping = {
@@ -168,7 +200,7 @@ const prim_mapping = {
   '0A': 'bytes'                  
 }
 
-export function decodeBytes(bytes : string) : TezJSON {
+export function decodeRawBytes(bytes : string) : TezJSON {
   bytes = bytes.toUpperCase()
   
   let index = 0
@@ -257,3 +289,11 @@ export function decodeBytes(bytes : string) : TezJSON {
   return walk()
 }
 
+export default {
+  prefix,
+  watermark,
+  bs58check_encode,
+  bs58check_decode,
+  bytesConcat,
+  decodeRawBytes
+}
