@@ -3,8 +3,8 @@
 import bip39 from 'bip39'
 import codec from './codec'
 
-export function getMnemonic(entropy? : number) {
-  return bip39.generateMnemonic(entropy)
+export function getMnemonic(strength? : number) {
+  return bip39.generateMnemonic(strength)
 }
 
 export function getSeedFromWords(sig_type : 'ed25519' | 'secp256k1' | 'p256', words : string | Array<string>, password? : string) {
