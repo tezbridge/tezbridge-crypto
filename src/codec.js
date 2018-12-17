@@ -1,7 +1,9 @@
 // @flow
 
-import type { TezJSON } from './types'
 import bs58check from 'bs58check'
+import sodium from './libs/libsodium-wrappers'
+
+import type { TezJSON } from './types'
 
 
 export function bytesConcat(x : Uint8Array, y : Uint8Array) {
@@ -11,13 +13,14 @@ export function bytesConcat(x : Uint8Array, y : Uint8Array) {
   return tmp
 }
 
-export function bs58check_encode(prefix : Uint8Array, input : Uint8Array) {
+export function bs58checkEncode(prefix : Uint8Array, input : Uint8Array) {
   return bs58check.encode(bytesConcat(prefix, input))
 }
 
-export function bs58check_decode(prefix : Uint8Array, input : string) {
+export function bs58checkDecode(prefix : Uint8Array, input : string) {
   return bs58check.decode(input).slice(prefix.length)
 }
+
 
 export const prefix = {
   block_hash: new Uint8Array([1, 52]), // B(51)
@@ -53,7 +56,21 @@ export const prefix = {
   p256_signature: new Uint8Array([54, 240, 44, 52]), // p2sig(98)
   generic_signature: new Uint8Array([4, 130, 43]), // sig(96)
 
-  chain_id: new Uint8Array([7, 82, 0]) // Net(15)
+  chain_id: new Uint8Array([7, 82, 0]), // Net(15)
+
+  contract_hash: new Uint8Array([2, 90, 121]) // KT1(36)
+}
+
+
+export function getContractHexKey(contract : string) {
+  if (contract.length !== 36 || contract.slice(0, 3) !== 'KT1')
+    throw `invalid contract: ${contract}`
+
+  const bytes = bs58checkDecode(prefix.contract_hash, contract)
+  const hex = sodium.to_hex(bytes)
+  const hex_key = [[0,2], [2,4], [4,6], [6,8], [8,10], [10,undefined]].map(x => hex.slice(x[0], x[1])).join('/')
+
+  return hex_key
 }
 
 export const watermark = {
@@ -292,8 +309,9 @@ export function decodeRawBytes(bytes : string) : TezJSON {
 export default {
   prefix,
   watermark,
-  bs58check_encode,
-  bs58check_decode,
+  bs58checkEncode,
+  bs58checkDecode,
+  getContractHexKey,
   bytesConcat,
   decodeRawBytes
 }

@@ -15,7 +15,7 @@ export function getSeedFromWords(sig_type : 'ed25519' | 'secp256k1' | 'p256', wo
     secp256k1: codec.prefix.secp256k1_secret_key,
     p256: codec.prefix.p256_secret_key
   } 
-  return codec.bs58check_encode(sig_mapping[sig_type], seed_bytes)
+  return codec.bs58checkEncode(sig_mapping[sig_type], seed_bytes)
 }
 
 export default {
