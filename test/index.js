@@ -68,11 +68,15 @@ const fn_tests = async () => {
   {
     const edsig = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un')
     const spsig1 = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'spsk2nG1XBRvSJmh6BiwcBxox5DpMn4NcRzJakgACsrydqXRhXfBej')
+    const p2sig = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'p2sk2ucp48wneFz9rwDvd4vsoqxNWHe5QTKcfnJ1JAyVJ3y77PgPSr')
+
     const edsig_prefix = TBC.codec.bs58checkPrefixPick(edsig)
     const spsig1_prefix = TBC.codec.bs58checkPrefixPick(spsig1)
+    const p2sig_prefix = TBC.codec.bs58checkPrefixPick(p2sig)
 
     assert(edsig.length === 99 && edsig_prefix.name === 'ed25519_signature', 'FN: signOperation edsig')
     assert(spsig1.length === 99 && spsig1_prefix.name === 'secp256k1_signature', 'FN: signOperation spsig1')
+    assert(p2sig.length === 98 && p2sig_prefix.name === 'p256_signature', 'FN: signOperation p2sig')
   }
 }
 

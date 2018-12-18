@@ -36,19 +36,18 @@ export function signOperation(operation_bytes : Uint8Array, secret_key : string)
 
   const secret_key_bytes = codec.bs58checkDecode(secret_key, prefix.bytes)
 
-  if (prefix.name === 'ed25519_secret_key') {
-    const ed25519 = new elliptic.eddsa('ed25519')
-    const key = ed25519.keyFromSecret(secret_key_bytes)
-    const signature_bytes = key.sign(operation_hash).toBytes()
-    return codec.bs58checkEncode(new Uint8Array(signature_bytes), sig_mapping[prefix.name])
+  if (prefix.name in sig_mapping) {
+    const key = {
+      ed25519_secret_key: () => (new elliptic.eddsa('ed25519')).keyFromSecret(secret_key_bytes),
+      secp256k1_secret_key: () => (new elliptic.ec('secp256k1')).keyFromPrivate(secret_key_bytes),
+      p256_secret_key: () => (new elliptic.ec('p256')).keyFromPrivate(secret_key_bytes)
+    }[prefix.name]()
 
-  } else if (prefix.name === 'secp256k1_secret_key') {
-    const secp256k1 = new elliptic.ec('secp256k1')
-    const key = secp256k1.keyFromPrivate(secret_key_bytes)
-    const signature_raw = key.sign(operation_hash)
-    const signature_bytes = new Uint8Array(signature_raw.r.toArray().concat(signature_raw.s.toArray()))
-    return codec.bs58checkEncode(signature_bytes, sig_mapping[prefix.name])
+    const sig_bytes = prefix.name === 'ed25519_secret_key' ? 
+      new Uint8Array(key.sign(operation_hash).toBytes()) :
+      (sig => new Uint8Array(sig.r.toArray().concat(sig.s.toArray())))(key.sign(operation_hash)) 
 
+    return codec.bs58checkEncode(sig_bytes, sig_mapping[prefix.name])
   } else {
     throw `invalid prefix for: ${secret_key}`
   }
