@@ -51,13 +51,8 @@ const fn_tests = async () => {
     const words24 = TBC.crypto.getMnemonic(256)
     assert(words24.split(' ').length === 24, 'FN: getMnemonic 256')
 
-    const ed25519_seed = TBC.crypto.getSeedFromWords('ed25519', words24, 'abcdefg')
-    const secp256k1_seed = TBC.crypto.getSeedFromWords('secp256k1', words18, 'abcdefg')
-    const p256_seed = TBC.crypto.getSeedFromWords('p256', words12)
-
-    assert(ed25519_seed.slice(0,4) === 'edsk' && ed25519_seed.length === 54, 'FN: getSeedFromWords ed25519')
-    assert(secp256k1_seed.slice(0,4) === 'spsk' && ed25519_seed.length === 54, 'FN: getSeedFromWords secp256k1')
-    assert(p256_seed.slice(0,4) === 'p2sk' && ed25519_seed.length === 54, 'FN: getSeedFromWords p256')
+    const seed = TBC.crypto.getSeedFromWords(words24, 'abcdefg')
+    assert(seed.slice(0,4) === 'edsk' && seed.length === 54, 'FN: getSeedFromWords')
   }
 
   {
