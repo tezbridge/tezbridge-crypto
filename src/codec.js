@@ -1,8 +1,7 @@
 // @flow
 
 import bs58check from 'bs58check'
-import sodium from './libs/libsodium-wrappers'
-
+import elliptic from 'elliptic'
 import type { TezJSON } from './types'
 
 
@@ -13,14 +12,13 @@ export function bytesConcat(x : Uint8Array, y : Uint8Array) {
   return tmp
 }
 
-export function bs58checkEncode(prefix : Uint8Array, input : Uint8Array) {
+export function bs58checkEncode(input : Uint8Array, prefix : Uint8Array) {
   return bs58check.encode(bytesConcat(prefix, input))
 }
 
-export function bs58checkDecode(prefix : Uint8Array, input : string) {
-  return bs58check.decode(input).slice(prefix.length)
+export function bs58checkDecode(input : string, prefix? : Uint8Array) {
+  return bs58check.decode(input).slice(prefix ? prefix.length : bs58checkPrefixPick(input).bytes.length)
 }
-
 
 export const prefix = {
   block_hash: new Uint8Array([1, 52]), // B(51)
@@ -61,13 +59,80 @@ export const prefix = {
   contract_hash: new Uint8Array([2, 90, 121]) // KT1(36)
 }
 
+export function bs58checkPrefixPick(input : string) : {bytes: Uint8Array, name: string} {
+  const prefix_mapping = {
+    [15]: {
+      Net: 'chain_id'
+    },
+    [30]: {
+      id: 'cryptobox_public_key_hash'
+    },
+    [36]: {
+      tz1: 'ed25519_public_key_hash',
+      tz2: 'secp256k1_public_key_hash',
+      tz3: 'p256_public_key_hash',
+      KT1: 'contract_hash'
+    },
+    [51]: {
+      B: 'block_hash',
+      o: 'operation_hash',
+      P: 'protocol_hash'
+    },
+    [52]: {
+      Lo: 'operation_list_hash',
+      Co: 'context_hash'
+    },
+    [53]: {
+      LLo: 'operation_list_list_hash',
+      SSp: 'secp256k1_scalar'
+    },
+    [54]: {
+      edsk: 'ed25519_seed',
+      edpk: 'ed25519_public_key',
+      spsk: 'secp256k1_secret_key',
+      p2sk: 'p256_secret_key',
+      GSp: 'secp256k1_element'
+    },
+    [55]: {
+      sppk: 'secp256k1_public_key',
+      p2pk: 'p256_public_key'
+    },
+    [88]: {
+      edesk: 'ed25519_encrypted_seed',
+      spesk: 'secp256k1_encrypted_secret_key',
+      p2esk: 'p256_encrypted_secret_key'
+    },
+    [96]: {
+      sig: 'generic_signature'
+    },
+    [98]: {
+      edsk: 'ed25519_secret_key',
+      p2sig: 'p256_signature'
+    },
+    [99]: {
+      edsig: 'ed25519_signature',
+      spsig1: 'secp256k1_signature'
+    }
+  }
+
+  const matched_mapping = prefix_mapping[input.length]
+  if (matched_mapping) {
+    for (const key in matched_mapping) {
+      const len = key.length
+      if (input.slice(0, len) === key)
+        return {bytes: prefix[matched_mapping[key]], name:matched_mapping[key]} 
+    }
+  }
+
+  throw `No prefix found for: ${input}`
+}
 
 export function getContractHexKey(contract : string) {
   if (contract.length !== 36 || contract.slice(0, 3) !== 'KT1')
     throw `invalid contract: ${contract}`
 
-  const bytes = bs58checkDecode(prefix.contract_hash, contract)
-  const hex = sodium.to_hex(bytes)
+  const bytes = bs58checkDecode(contract, prefix.contract_hash)
+  const hex = elliptic.utils.toHex(bytes)
   const hex_key = [[0,2], [2,4], [4,6], [6,8], [8,10], [10,undefined]].map(x => hex.slice(x[0], x[1])).join('/')
 
   return hex_key
@@ -311,6 +376,7 @@ export default {
   watermark,
   bs58checkEncode,
   bs58checkDecode,
+  bs58checkPrefixPick,
   getContractHexKey,
   bytesConcat,
   decodeRawBytes

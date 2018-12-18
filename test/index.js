@@ -34,9 +34,10 @@ const fn_tests = async () => {
   {
     const source = 'tz1TUswtLE1cTBgoBC2JAtQ5Jsz2crp1tZvJ'
     const prefix = TBC.codec.prefix.ed25519_public_key_hash
-    const bytes = TBC.codec.bs58checkDecode(prefix, source)
-    assert(bytes.length === 20, 'FN: bs58checkDecode')
-    const str = TBC.codec.bs58checkEncode(prefix, bytes)
+    const bytes = TBC.codec.bs58checkDecode(source, prefix)
+    const bytes_auto = TBC.codec.bs58checkDecode(source)
+    assert(bytes.length === 20 && bytes.toString() === bytes_auto.toString(), 'FN: bs58checkDecode')
+    const str = TBC.codec.bs58checkEncode(bytes, prefix)
     assert(str === source, 'FN: bs58checkEncode')
   }
 
@@ -62,6 +63,16 @@ const fn_tests = async () => {
   {
     const hex_key = TBC.codec.getContractHexKey('KT1UynVe2zgSht3QHFUDpWkKvonFrcE1PZ8q')
     assert(hex_key === 'df/bc/db/b1/14/77863511f6ada9978be77b690be14a', 'FN: getContractHexKey')
+  }
+
+  {
+    const edsig = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un')
+    const spsig1 = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'spsk2nG1XBRvSJmh6BiwcBxox5DpMn4NcRzJakgACsrydqXRhXfBej')
+    const edsig_prefix = TBC.codec.bs58checkPrefixPick(edsig)
+    const spsig1_prefix = TBC.codec.bs58checkPrefixPick(spsig1)
+
+    assert(edsig.length === 99 && edsig_prefix.name === 'ed25519_signature', 'FN: signOperation edsig')
+    assert(spsig1.length === 99 && spsig1_prefix.name === 'secp256k1_signature', 'FN: signOperation spsig1')
   }
 }
 

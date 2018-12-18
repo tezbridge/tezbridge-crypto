@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "bip39": "^2.5.0",
-    "bs58check": "^2.1.2"
+    "blakejs": "^1.1.0",
+    "bs58check": "^2.1.2",
+    "elliptic": "^6.4.1"
   }
 }
