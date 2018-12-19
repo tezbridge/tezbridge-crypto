@@ -51,8 +51,9 @@ const fn_tests = async () => {
     const words24 = TBC.crypto.getMnemonic(256)
     assert(words24.split(' ').length === 24, 'FN: getMnemonic 256')
 
-    const seed = TBC.crypto.getSeedFromWords(words24, 'abcdefg')
-    assert(seed.slice(0,4) === 'edsk' && seed.length === 54, 'FN: getSeedFromWords')
+    const key = TBC.crypto.getKeyFromWords(words24, 'abcdefg')
+    const secret_key = key.getSecretKey()
+    assert(secret_key.slice(0,4) === 'edsk' && secret_key.length === 98, 'FN: getKeyFromWords')
   }
 
   {
@@ -75,9 +76,25 @@ const fn_tests = async () => {
   }
 
   {
-    const spesk = TBC.crypto.decryptKey('spesk29FVwwKJ4FXpJtGKraxS4QcDeaoBL1JPsnqnofUSAf9yFioRbfRq5eJEoXpcUBPKnFjj8WEfj7cQjZkRxAs', 'a')
     const edesk = TBC.crypto.decryptKey('edesk1TgH1sGSQ2rwM1Sk475ikTLqeYrSH2a6tvUuZdzkox8C91n55pVGo7QpxbFhT1KAe3zpPFWPvrusrBY9fnc', 'a')
+    const spesk = TBC.crypto.decryptKey('spesk29FVwwKJ4FXpJtGKraxS4QcDeaoBL1JPsnqnofUSAf9yFioRbfRq5eJEoXpcUBPKnFjj8WEfj7cQjZkRxAs', 'a')
     const p2esk = TBC.crypto.decryptKey('p2esk1qLhMDUemxyMkfjAjmKw5QQSp7FhGadvBgthrehjWwJSofUtcd56HpEv8GqutoA3hC8wMAqeU2sX5p4XHjX', 'a')
+
+    assert(
+      edesk.address === 'tz1hgWvYdzLECdrq5zndGHwCGnUCJq1KFe3r'
+      && edesk.getPublicKey() === 'edpkunm1aRnRtHwVsBGSFgKmw5EhBn4gR6NC5JqVoAi57viSgAN3t5',
+      'FN: decryptKey edesk')
+
+    assert(
+      spesk.address === 'tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB'
+      && spesk.getPublicKey() === 'sppk7aLxNrEXqt52YTEXmVwKQSu2phVrjnSQmF7V31xSAFXEq9PSETE', 
+      'FN: decryptKey spesk')
+
+    assert(
+      p2esk.address === 'tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X'
+      && p2esk.getPublicKey() === 'p2pk67SFY4XDMaACBrbJfvhmfLVx3wNfNt4inWHRsCdZc13b7CASxbm', 
+      'FN: decryptKey p2esk')
+
   }
 }
 

@@ -16,7 +16,52 @@ export function getMnemonic(strength? : number) {
   return bip39.generateMnemonic(strength)
 }
 
-export function decryptKey(encrypted : string, password : string) {
+class Key {
+  name : string
+  secret_key : Uint8Array
+  pub_key : Uint8Array
+  address : string
+
+  constructor(name : 'ed25519' | 'secp256k1' | 'p256', secret_key : Uint8Array, pub_key : Uint8Array) {
+    this.name = name
+    this.secret_key = secret_key
+    this.pub_key = pub_key
+
+    this.address = {
+      ed25519: () => 
+        codec.bs58checkEncode(blake2bHash(this.pub_key, 20), codec.prefix.ed25519_public_key_hash),
+      secp256k1: () => 
+        codec.bs58checkEncode(blake2bHash(this.pub_key, 20), codec.prefix.secp256k1_public_key_hash),
+      p256: () => 
+        codec.bs58checkEncode(blake2bHash(this.pub_key, 20), codec.prefix.p256_public_key_hash) 
+    }[this.name]()
+  }
+
+  getSecretKey() {
+    return {
+      ed25519: () => 
+        codec.bs58checkEncode(this.secret_key, codec.prefix.ed25519_secret_key),
+      secp256k1: () => 
+        codec.bs58checkEncode(this.secret_key, codec.prefix.secp256k1_secret_key),
+      p256: () => 
+        codec.bs58checkEncode(this.secret_key, codec.prefix.p256_secret_key)
+    }[this.name]()
+  }
+
+  getPublicKey() {
+    return {
+      ed25519: () => 
+        codec.bs58checkEncode(this.pub_key, codec.prefix.ed25519_public_key),
+      secp256k1: () => 
+        codec.bs58checkEncode(this.pub_key, codec.prefix.secp256k1_public_key),
+      p256: () => 
+        codec.bs58checkEncode(this.pub_key, codec.prefix.p256_public_key)
+    }[this.name]()
+  }
+}
+
+
+export function decryptKey(encrypted : string, password : string) : Key {
   const prefix = codec.bs58checkPrefixPick(encrypted)
   const encrypted_bytes = codec.bs58checkDecode(encrypted, prefix.bytes)
   const salt = encrypted_bytes.slice(0, 8)
@@ -27,12 +72,18 @@ export function decryptKey(encrypted : string, password : string) {
     ed25519_encrypted_seed: (seed) => {
       const ed25519 = new elliptic.eddsa('ed25519')
       const key_pair = nacl.sign.keyPair.fromSeed(seed)
-      return codec.bs58checkEncode(key_pair.secretKey, codec.prefix.ed25519_secret_key)
+      return new Key('ed25519', key_pair.secretKey, key_pair.publicKey)
     },
-    secp256k1_encrypted_secret_key: (key) => 
-      codec.bs58checkEncode(key, codec.prefix.secp256k1_secret_key),
-    p256_encrypted_secret_key: (key) => 
-      codec.bs58checkEncode(key, codec.prefix.p256_secret_key), 
+    secp256k1_encrypted_secret_key: (key) => {
+      const key_pair = (new elliptic.ec('secp256k1')).keyFromPrivate(key)
+      const pub_key = new Uint8Array([2].concat(key_pair.getPublic().getX().toArray()))
+      return new Key('secp256k1', key, pub_key)
+    },
+    p256_encrypted_secret_key: (key) =>  {
+      const key_pair = (new elliptic.ec('p256')).keyFromPrivate(key)
+      const pub_key = new Uint8Array([3].concat(key_pair.getPublic().getX().toArray()))
+      return new Key('p256', key, pub_key)
+    }
   }
 
   if (prefix.name in key_mapping) {
@@ -42,10 +93,16 @@ export function decryptKey(encrypted : string, password : string) {
   }
 }
 
-export function getSeedFromWords(words : string | Array<string>, password? : string) {
+export function getKeyFromSeed(seed : string | Uint8Array) {
+  const seed_bytes = typeof seed === 'string' ? codec.bs58checkDecode(seed) : seed
+  const key_pair = nacl.sign.keyPair.fromSeed(seed_bytes)
+  return new Key('ed25519', key_pair.secretKey, key_pair.publicKey)
+}
+
+export function getKeyFromWords(words : string | Array<string>, password? : string) {
   const mnemonic = words instanceof Array ? words.join(' ') : words
   const seed_bytes = bip39.mnemonicToSeed(mnemonic, password).slice(0, 32)
-  return codec.bs58checkEncode(seed_bytes, codec.prefix.ed25519_seed)
+  return getKeyFromSeed(seed_bytes)
 }
 
 export function signOperation(operation_bytes : Uint8Array, secret_key : string) {
@@ -79,7 +136,8 @@ export function signOperation(operation_bytes : Uint8Array, secret_key : string)
 
 export default {
   getMnemonic,
-  getSeedFromWords,
+  getKeyFromSeed,
+  getKeyFromWords,
   decryptKey,
   signOperation
 }
