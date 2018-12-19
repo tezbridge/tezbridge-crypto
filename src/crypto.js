@@ -4,6 +4,9 @@ import bip39 from 'bip39'
 import codec from './codec'
 import elliptic from 'elliptic'
 import blake from 'blakejs'
+import crypto from 'crypto'
+import { secretbox } from 'tweetnacl'
+import nacl from 'tweetnacl'
 
 export function blake2bHash(input : Uint8Array, len : number = 32) {
   return blake.blake2b(input, null, len)
@@ -11,6 +14,32 @@ export function blake2bHash(input : Uint8Array, len : number = 32) {
 
 export function getMnemonic(strength? : number) {
   return bip39.generateMnemonic(strength)
+}
+
+export function decryptKey(encrypted : string, password : string) {
+  const prefix = codec.bs58checkPrefixPick(encrypted)
+  const encrypted_bytes = codec.bs58checkDecode(encrypted, prefix.bytes)
+  const salt = encrypted_bytes.slice(0, 8)
+  const encrypted_msg = encrypted_bytes.slice(8)
+  const key = crypto.pbkdf2Sync(password, salt, 32768, 32, 'sha512')
+  const result = secretbox.open(encrypted_msg, new Uint8Array(24), key)
+  const key_mapping = {
+    ed25519_encrypted_seed: (seed) => {
+      const ed25519 = new elliptic.eddsa('ed25519')
+      const key_pair = nacl.sign.keyPair.fromSeed(seed)
+      return codec.bs58checkEncode(key_pair.secretKey, codec.prefix.ed25519_secret_key)
+    },
+    secp256k1_encrypted_secret_key: (key) => 
+      codec.bs58checkEncode(key, codec.prefix.secp256k1_secret_key),
+    p256_encrypted_secret_key: (key) => 
+      codec.bs58checkEncode(key, codec.prefix.p256_secret_key), 
+  }
+
+  if (prefix.name in key_mapping) {
+    return key_mapping[prefix.name](result)
+  } else {
+    throw 'No valid prefix for encrypted key found'
+  }
 }
 
 export function getSeedFromWords(words : string | Array<string>, password? : string) {
@@ -51,5 +80,6 @@ export function signOperation(operation_bytes : Uint8Array, secret_key : string)
 export default {
   getMnemonic,
   getSeedFromWords,
+  decryptKey,
   signOperation
 }
