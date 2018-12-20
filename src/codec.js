@@ -2,7 +2,7 @@
 
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
-import type { TezJSON } from './types'
+import type { Micheline } from './types'
 
 
 export function bytesConcat(x : Uint8Array, y : Uint8Array) {
@@ -282,7 +282,7 @@ const prim_mapping = {
   '0A': 'bytes'                  
 }
 
-export function decodeRawBytes(bytes : string) : TezJSON {
+export function decodeRawBytes(bytes : string) : Micheline {
   bytes = bytes.toUpperCase()
   
   let index = 0
@@ -366,6 +366,7 @@ export function decodeRawBytes(bytes : string) : TezJSON {
 
     }
 
+    throw 'Invalid raw bytes'
   }
 
   return walk()
