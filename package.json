@@ -28,6 +28,7 @@
     "flow-bin": "^0.88.0"
   },
   "dependencies": {
+    "bignumber.js": "^8.0.1",
     "bip39": "^2.5.0",
     "blakejs": "^1.1.0",
     "bs58check": "^2.1.2",

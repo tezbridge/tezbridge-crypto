@@ -1,5 +1,6 @@
 // @flow
 
+import { BigNumber } from 'bignumber.js'
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
 import type { Micheline } from './types'
@@ -267,19 +268,98 @@ const op_mapping = {
   '6E':'address',
   '6F':'SLICE',
 }
+const op_mapping_reverse = (() => {
+  const result = {}
+  for (const key in op_mapping) {
+    result[op_mapping[key]] = key
+  }
+  return result
+})()
 
 const prim_mapping = {
   '00': 'int',    
   '01': 'string',             
   '02': 'seq',             
-  '03': {name: 'prim', len: 0, annot: false},          
-  '04': {name: 'prim', len: 0, annot: true},
-  '05': {name: 'prim', len: 1, annot: false},           
-  '06': {name: 'prim', len: 1, annot: true},   
-  '07': {name: 'prim', len: 2, annot: false},          
-  '08': {name: 'prim', len: 2, annot: true},  
-  '09': {name: 'prim', len: 3, annot: true},
+  '03': {name: 'prim', len: 0, annots: false},          
+  '04': {name: 'prim', len: 0, annots: true},
+  '05': {name: 'prim', len: 1, annots: false},           
+  '06': {name: 'prim', len: 1, annots: true},   
+  '07': {name: 'prim', len: 2, annots: false},          
+  '08': {name: 'prim', len: 2, annots: true},  
+  '09': {name: 'prim', len: 3, annots: true},
   '0A': 'bytes'                  
+}
+const prim_mapping_reverse = {
+  [0]: {
+    false: '03',
+    true: '04'
+  },
+  [1]: {
+    false: '05',
+    true: '06'
+  },
+  [2]: {
+    false: '07',
+    true: '08'
+  },
+  [3]: {
+    true: '09'
+  }
+}
+export function encodeRawBytes(input : Micheline) : string {
+  const result : Array<string> = []
+
+  if (input instanceof Array) {
+
+  } else if (input instanceof Object) {
+    if (input.prim) {
+      const args_len = input.args ? input.args.length : 0
+      result.push(prim_mapping_reverse[args_len][!!input.annots])
+      result.push(op_mapping_reverse[input.prim])
+      if (input.args) {
+        input.args.forEacH(arg => {
+          result.push(encodeRawBytes(arg))
+        })
+      }
+      // TODO: add annots
+    } else if (input.bytes) {
+
+      const len = input.bytes.length / 2
+      result.push('0A')
+      result.push(len.toString(16).padStart(8, '0'))
+      result.push(input.bytes)
+
+    } else if (input.int) {
+      const num = new BigNumber(input.int, 10)
+      const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
+      const binary = num.toString(2).replace('-', '')
+      const splitted = binary.match(/\d{1,7}/g).reverse()
+      splitted[0] = splitted[0].padStart(7, '0')
+      if (splitted[0][0] === '1')
+        splitted.unshift(`0${positive_mark}00000`)
+      else
+        splitted[0][1] = positive_mark
+
+      const result = splitted.map((x, i) => {
+        const b = (i === splitted.length - 1 ? '0' : '1') + x
+        return parseInt(b, 2).toString(16).toUpperCase()
+      }).join('')
+      result.push('00')
+      // TODO: encode int value
+
+    } else if (input.string) {
+
+      const string_bytes = new TextEncoder().encode(input.string)
+      const string_hex = [].slice.call(string_bytes).map(x => x.toString(16)).join('').toUpperCase()
+      const len = string_bytes.length
+      result.push('01')
+      result.push(len.toString(16).padStart(8, '0'))
+      result.push(string_hex)
+
+    }
+  }
+
+  return result.join('')
 }
 
 export function decodeRawBytes(bytes : string) : Micheline {
@@ -300,7 +380,7 @@ export function decodeRawBytes(bytes : string) : Micheline {
       index += 2
 
       const args = Array.apply(null, new Array(prim.len))
-      return {prim: op, args: args.map(() => walk())}
+      return {prim: op, args: args.map(() => walk())}  // TODO: add annots
 
     } else {
       if (b === '0A') {
@@ -347,7 +427,8 @@ export function decodeRawBytes(bytes : string) : Micheline {
           checknext = bytes[0] === '1'
         }
 
-        return {int: parseInt(valid_bytes.reverse().join(''), 2).toString()}
+        const num = new BigNumber(valid_bytes.reverse().join(''), 2)
+        return {int: num.toString()}
       } else if (b === '02') {
         index += 2
 
