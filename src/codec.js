@@ -306,6 +306,7 @@ const prim_mapping_reverse = {
     true: '09'
   }
 }
+
 export function encodeRawBytes(input : Micheline) : string {
   const result : Array<string> = []
 
@@ -317,7 +318,7 @@ export function encodeRawBytes(input : Micheline) : string {
       result.push(prim_mapping_reverse[args_len][!!input.annots])
       result.push(op_mapping_reverse[input.prim])
       if (input.args) {
-        input.args.forEacH(arg => {
+        input.args.forEach(arg => {
           result.push(encodeRawBytes(arg))
         })
       }
@@ -333,19 +334,20 @@ export function encodeRawBytes(input : Micheline) : string {
       const num = new BigNumber(input.int, 10)
       const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
       const binary = num.toString(2).replace('-', '')
-      const splitted = binary.match(/\d{1,7}/g).reverse()
-      splitted[0] = splitted[0].padStart(7, '0')
-      if (splitted[0][0] === '1')
-        splitted.unshift(`0${positive_mark}00000`)
-      else
-        splitted[0][1] = positive_mark
+      const pad = binary.length > 6 ?  binary.length + 7 - (binary.length - 6) % 7 : 6
 
-      const result = splitted.map((x, i) => {
-        const b = (i === splitted.length - 1 ? '0' : '1') + x
-        return parseInt(b, 2).toString(16).toUpperCase()
-      }).join('')
+      const splitted = binary.padStart(pad, '0').match(/\d{6,7}/g)
+      const reversed = splitted.reverse()
+
+      reversed[0] = positive_mark + reversed[0]
+      const num_hex = reversed.map((x, i) => 
+        parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
+        .toString(16)
+        .padStart(2, '0')
+        .toUpperCase()).join('')
+
       result.push('00')
-      // TODO: encode int value
+      result.push(num_hex)
 
     } else if (input.string) {
 
@@ -461,5 +463,6 @@ export default {
   bs58checkPrefixPick,
   getContractHexKey,
   bytesConcat,
+  encodeRawBytes,
   decodeRawBytes
 }
