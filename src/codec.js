@@ -1,5 +1,7 @@
 // @flow
 
+import { TextDecoder, TextEncoder } from 'util'
+
 import { BigNumber } from 'bignumber.js'
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
@@ -308,60 +310,75 @@ const prim_mapping_reverse = {
 }
 
 export function encodeRawBytes(input : Micheline) : string {
-  const result : Array<string> = []
+  const rec = (input : Micheline) : string => {
+    const result : Array<string> = []
 
-  if (input instanceof Array) {
+    if (input instanceof Array) {
+      result.push('02')
+      const bytes = input.map(x => rec(x)).join('')
+      const len = bytes.length / 2
+      result.push(len.toString(16).padStart(8, '0'))
+      result.push(bytes)
 
-  } else if (input instanceof Object) {
-    if (input.prim) {
-      const args_len = input.args ? input.args.length : 0
-      result.push(prim_mapping_reverse[args_len][!!input.annots])
-      result.push(op_mapping_reverse[input.prim])
-      if (input.args) {
-        input.args.forEach(arg => {
-          result.push(encodeRawBytes(arg))
-        })
+    } else if (input instanceof Object) {
+      if (input.prim) {
+        const args_len = input.args ? input.args.length : 0
+        result.push(prim_mapping_reverse[args_len][!!input.annots])
+        result.push(op_mapping_reverse[input.prim])
+        if (input.args) {
+          input.args.forEach(arg => {
+            result.push(rec(arg))
+          })
+        }
+
+        if (input.annots) {
+          const annots_bytes = input.annots.map(x => 
+            elliptic.utils.toHex(new TextEncoder().encode(x))).join('20')
+          result.push((annots_bytes.length / 2).toString(16).padStart(8, '0'))
+          result.push(annots_bytes)
+        }
+
+      } else if (input.bytes) {
+
+        const len = input.bytes.length / 2
+        result.push('0A')
+        result.push(len.toString(16).padStart(8, '0'))
+        result.push(input.bytes)
+
+      } else if (input.int) {
+        const num = new BigNumber(input.int, 10)
+        const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
+        const binary = num.toString(2).replace('-', '')
+        const pad = binary.length > 6 ?  binary.length + 7 - (binary.length - 6) % 7 : 6
+
+        const splitted = binary.padStart(pad, '0').match(/\d{6,7}/g)
+        const reversed = splitted.reverse()
+
+        reversed[0] = positive_mark + reversed[0]
+        const num_hex = reversed.map((x, i) => 
+          parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
+          .toString(16)
+          .padStart(2, '0')).join('')
+
+        result.push('00')
+        result.push(num_hex)
+
+      } else if (input.string) {
+
+        const string_bytes = new TextEncoder().encode(input.string)
+        const string_hex = [].slice.call(string_bytes).map(x => x.toString(16).padStart(2, '0')).join('')
+        const len = string_bytes.length
+        result.push('01')
+        result.push(len.toString(16).padStart(8, '0'))
+        result.push(string_hex)
+
       }
-      // TODO: add annots
-    } else if (input.bytes) {
-
-      const len = input.bytes.length / 2
-      result.push('0A')
-      result.push(len.toString(16).padStart(8, '0'))
-      result.push(input.bytes)
-
-    } else if (input.int) {
-      const num = new BigNumber(input.int, 10)
-      const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
-      const binary = num.toString(2).replace('-', '')
-      const pad = binary.length > 6 ?  binary.length + 7 - (binary.length - 6) % 7 : 6
-
-      const splitted = binary.padStart(pad, '0').match(/\d{6,7}/g)
-      const reversed = splitted.reverse()
-
-      reversed[0] = positive_mark + reversed[0]
-      const num_hex = reversed.map((x, i) => 
-        parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
-        .toString(16)
-        .padStart(2, '0')
-        .toUpperCase()).join('')
-
-      result.push('00')
-      result.push(num_hex)
-
-    } else if (input.string) {
-
-      const string_bytes = new TextEncoder().encode(input.string)
-      const string_hex = [].slice.call(string_bytes).map(x => x.toString(16)).join('').toUpperCase()
-      const len = string_bytes.length
-      result.push('01')
-      result.push(len.toString(16).padStart(8, '0'))
-      result.push(string_hex)
-
     }
+
+    return result.join('')
   }
 
-  return result.join('')
+  return rec(input).toUpperCase()
 }
 
 export function decodeRawBytes(bytes : string) : Micheline {
@@ -371,7 +388,7 @@ export function decodeRawBytes(bytes : string) : Micheline {
 
   const read = len => bytes.slice(index, index + len)
 
-  const walk = () => {
+  const rec = () => {
     const b = read(2)
     const prim = prim_mapping[b]
     
@@ -382,7 +399,28 @@ export function decodeRawBytes(bytes : string) : Micheline {
       index += 2
 
       const args = Array.apply(null, new Array(prim.len))
-      return {prim: op, args: args.map(() => walk())}  // TODO: add annots
+      const result = {prim: op, args: args.map(() => rec()), annots: undefined}
+
+      if (!prim.len)
+        delete result.args
+
+      if (prim.annots) {
+        const annots_len = parseInt(read(8), 16) * 2
+        index += 8
+
+        const string_hex_lst = read(annots_len).match(/[\dA-F]{2}/g)
+        index += annots_len
+        
+        if (string_hex_lst) {
+          const string_bytes = new Uint8Array(string_hex_lst.map(x => parseInt(x, 16)))
+          const string_result = new TextDecoder('utf-8').decode(string_bytes)
+          result.annots = string_result.split(' ')
+        }
+      } else {
+        delete result.annots
+      }
+
+      return result
 
     } else {
       if (b === '0A') {
@@ -408,7 +446,7 @@ export function decodeRawBytes(bytes : string) : Micheline {
           const string_raw = new Uint8Array(match_result.map(x => parseInt(x, 16)))
           return {string: new TextDecoder('utf-8').decode(string_raw)}
         } else {
-          throw "Input bytes error"
+          throw `Input bytes error`
         }
 
       } else if (b === '00') {
@@ -442,17 +480,17 @@ export function decodeRawBytes(bytes : string) : Micheline {
 
         const seq_lst = []
         while (limit > index) {
-          seq_lst.push(walk())
+          seq_lst.push(rec())
         }
         return seq_lst
       }
 
     }
 
-    throw 'Invalid raw bytes'
+    throw `Invalid raw bytes: Byte:${b} Index:${index}`
   }
 
-  return walk()
+  return rec()
 }
 
 export default {
