@@ -8,8 +8,7 @@
     "flow": "flow",
     "dev": "parcel watch src/index.js",
     "test": "flow && parcel build test/index.js --target node -o test.js && node dist/test.js",
-    "build": "rm -rf dist && rm -rf .cache && flow && parcel build src/index.js --target node && parcel build src/index.js -o browser.js",
-    "publish": "npm run build && npm publish"
+    "build": "rm -rf dist && rm -rf .cache && flow && parcel build src/index.js --target node && parcel build src/index.js -o browser.js"
   },
   "repository": {
     "type": "git",
