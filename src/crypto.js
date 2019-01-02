@@ -105,7 +105,8 @@ export function getKeyFromWords(words : string | Array<string>, password? : stri
   return getKeyFromSeed(seed_bytes)
 }
 
-export function signOperation(operation_bytes : Uint8Array, secret_key : string) {
+export function signOperation(input_operation : Uint8Array | string, secret_key : string) {
+  const operation_bytes = typeof input_operation === 'string' ? elliptic.utils.toHex(input_operation) : input_operation
   const marked_operation = codec.bytesConcat(codec.watermark.operation(), operation_bytes)
   const operation_hash = blake2bHash(marked_operation)
   const prefix = codec.bs58checkPrefixPick(secret_key)

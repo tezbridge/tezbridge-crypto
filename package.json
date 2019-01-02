@@ -1,14 +1,13 @@
 {
   "name": "tezbridge-crypto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The TezBridge crypto library for Tezos blockchain in JavaScript with Flow type system",
   "main": "dist/index.js",
-  "browser": "dist/browser.js",
   "scripts": {
     "flow": "flow",
     "dev": "parcel watch src/index.js",
     "test": "flow && parcel build test/index.js --target node -o test.js && node dist/test.js",
-    "build": "rm -rf dist && rm -rf .cache && flow && parcel build src/index.js --target node && parcel build src/index.js -o browser.js"
+    "build": "rm -rf dist && rm -rf .cache && flow && parcel build src/index.js --target node"
   },
   "repository": {
     "type": "git",
