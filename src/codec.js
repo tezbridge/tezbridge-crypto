@@ -7,6 +7,12 @@ import bs58check from 'bs58check'
 import elliptic from 'elliptic'
 import type { Micheline } from './types'
 
+export function fromHex(x : string) {
+  return new Uint8Array(elliptic.utils.toArray(x, 'hex'))
+}
+export function toHex(x : Uint8Array) {
+  return elliptic.utils.toHex(x)
+}
 
 export function bytesConcat(x : Uint8Array, y : Uint8Array) {
   const tmp = new Uint8Array(x.length + y.length)
@@ -135,7 +141,7 @@ export function getContractHexKey(contract : string) {
     throw `invalid contract: ${contract}`
 
   const bytes = bs58checkDecode(contract, prefix.contract_hash)
-  const hex = elliptic.utils.toHex(bytes)
+  const hex = toHex(bytes)
   const hex_key = [[0,2], [2,4], [4,6], [6,8], [8,10], [10,undefined]].map(x => hex.slice(x[0], x[1])).join('/')
 
   return hex_key
@@ -333,7 +339,7 @@ export function encodeRawBytes(input : Micheline) : string {
 
         if (input.annots) {
           const annots_bytes = input.annots.map(x => 
-            elliptic.utils.toHex(new TextEncoder().encode(x))).join('20')
+            toHex(new TextEncoder().encode(x))).join('20')
           result.push((annots_bytes.length / 2).toString(16).padStart(8, '0'))
           result.push(annots_bytes)
         }
@@ -494,6 +500,8 @@ export function decodeRawBytes(bytes : string) : Micheline {
 }
 
 export default {
+  fromHex,
+  toHex,
   prefix,
   watermark,
   bs58checkEncode,

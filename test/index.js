@@ -70,7 +70,7 @@ const fn_tests = async () => {
   }
 
   {
-    const edsig = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un')
+    const edsig = TBC.crypto.signOperation(new Uint8Array([1]), 'edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un')
     const spsig1 = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'spsk2nG1XBRvSJmh6BiwcBxox5DpMn4NcRzJakgACsrydqXRhXfBej')
     const p2sig = TBC.crypto.signOperation(new Uint8Array([1,2,3,4,5,6]), 'p2sk2ucp48wneFz9rwDvd4vsoqxNWHe5QTKcfnJ1JAyVJ3y77PgPSr')
 
@@ -103,6 +103,12 @@ const fn_tests = async () => {
       && p2esk.getPublicKey() === 'p2pk67SFY4XDMaACBrbJfvhmfLVx3wNfNt4inWHRsCdZc13b7CASxbm', 
       'FN: decryptKey p2esk')
 
+  }
+
+  {
+    const key = TBC.crypto.getKeyFromSecretKey('edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un')
+    assert(key.address === 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e', 'FN: get key from secret key')
+    assert(key.getPublicKey() === 'edpkv2FiD8nFLXC4XfAr33pqt7KfKxx9oH2tJdwqza2fjhGVYC8f31', 'FN: get key from secret key')
   }
 }
 

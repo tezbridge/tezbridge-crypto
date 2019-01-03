@@ -60,7 +60,22 @@ class Key {
   }
 }
 
-
+function getKeyFromEd25519(input : Uint8Array) {
+  const ed25519 = new elliptic.eddsa('ed25519')
+  const key_pair = nacl.sign.keyPair[input.length === 32 ? 'fromSeed' : 'fromSecretKey'](input)
+  return new Key('ed25519', key_pair.secretKey, key_pair.publicKey)
+}
+function getKeyFromSecp256k1(key : Uint8Array) {
+  const key_pair = (new elliptic.ec('secp256k1')).keyFromPrivate(key)
+  const pub_key = new Uint8Array([2].concat(key_pair.getPublic().getX().toArray()))
+  return new Key('secp256k1', key, pub_key)
+}
+function getKeyFromP256(key : Uint8Array) {
+  const key_pair = (new elliptic.ec('p256')).keyFromPrivate(key)
+  const pub_key = new Uint8Array([3].concat(key_pair.getPublic().getX().toArray()))
+  return new Key('p256', key, pub_key)
+}
+ 
 export function decryptKey(encrypted : string, password : string) : Key {
   const prefix = codec.bs58checkPrefixPick(encrypted)
   const encrypted_bytes = codec.bs58checkDecode(encrypted, prefix.bytes)
@@ -69,27 +84,32 @@ export function decryptKey(encrypted : string, password : string) : Key {
   const key = crypto.pbkdf2Sync(password, salt, 32768, 32, 'sha512')
   const result = secretbox.open(encrypted_msg, new Uint8Array(24), key)
   const key_mapping = {
-    ed25519_encrypted_seed: (seed) => {
-      const ed25519 = new elliptic.eddsa('ed25519')
-      const key_pair = nacl.sign.keyPair.fromSeed(seed)
-      return new Key('ed25519', key_pair.secretKey, key_pair.publicKey)
-    },
-    secp256k1_encrypted_secret_key: (key) => {
-      const key_pair = (new elliptic.ec('secp256k1')).keyFromPrivate(key)
-      const pub_key = new Uint8Array([2].concat(key_pair.getPublic().getX().toArray()))
-      return new Key('secp256k1', key, pub_key)
-    },
-    p256_encrypted_secret_key: (key) =>  {
-      const key_pair = (new elliptic.ec('p256')).keyFromPrivate(key)
-      const pub_key = new Uint8Array([3].concat(key_pair.getPublic().getX().toArray()))
-      return new Key('p256', key, pub_key)
-    }
+    ed25519_encrypted_seed: getKeyFromEd25519,
+    secp256k1_encrypted_secret_key: getKeyFromSecp256k1,
+    p256_encrypted_secret_key: getKeyFromP256
   }
 
   if (prefix.name in key_mapping) {
     return key_mapping[prefix.name](result)
   } else {
     throw 'No valid prefix for encrypted key found'
+  }
+}
+
+export function getKeyFromSecretKey(sk: string) {
+  const prefix = codec.bs58checkPrefixPick(sk)
+  const bytes = codec.bs58checkDecode(sk, prefix.bytes)
+
+  const key_mapping = {
+    ed25519_secret_key: getKeyFromEd25519,
+    secp256k1_secret_key: getKeyFromSecp256k1,
+    p256_encrypted_secret_key: getKeyFromP256
+  }
+
+  if (prefix.name in key_mapping) {
+    return key_mapping[prefix.name](bytes)
+  } else {
+    throw 'No valid prefix for secret key found'
   }
 }
 
@@ -106,7 +126,7 @@ export function getKeyFromWords(words : string | Array<string>, password? : stri
 }
 
 export function signOperation(input_operation : Uint8Array | string, secret_key : string) {
-  const operation_bytes = typeof input_operation === 'string' ? elliptic.utils.toHex(input_operation) : input_operation
+  const operation_bytes = typeof input_operation === 'string' ? codec.fromHex(input_operation) : input_operation
   const marked_operation = codec.bytesConcat(codec.watermark.operation(), operation_bytes)
   const operation_hash = blake2bHash(marked_operation)
   const prefix = codec.bs58checkPrefixPick(secret_key)
@@ -117,7 +137,6 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
   }
 
   const secret_key_bytes = codec.bs58checkDecode(secret_key, prefix.bytes)
-
   if (prefix.name in sig_mapping) {
     const key = {
       ed25519_secret_key: () => (new elliptic.eddsa('ed25519')).keyFromSecret(secret_key_bytes),
@@ -140,5 +159,6 @@ export default {
   getKeyFromSeed,
   getKeyFromWords,
   decryptKey,
+  getKeyFromSecretKey,
   signOperation
 }
