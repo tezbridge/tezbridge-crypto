@@ -139,13 +139,13 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
   const secret_key_bytes = codec.bs58checkDecode(secret_key, prefix.bytes)
   if (prefix.name in sig_mapping) {
     const key = {
-      ed25519_secret_key: () => (new elliptic.eddsa('ed25519')).keyFromSecret(secret_key_bytes),
+      ed25519_secret_key: () => nacl.sign.keyPair.fromSecretKey(secret_key_bytes).secretKey,
       secp256k1_secret_key: () => (new elliptic.ec('secp256k1')).keyFromPrivate(secret_key_bytes),
       p256_secret_key: () => (new elliptic.ec('p256')).keyFromPrivate(secret_key_bytes)
     }[prefix.name]()
 
     const sig_bytes = prefix.name === 'ed25519_secret_key' ? 
-      new Uint8Array(key.sign(operation_hash).toBytes()) :
+      new Uint8Array(nacl.sign.detached(operation_hash, key)) :
       (sig => new Uint8Array(sig.r.toArray().concat(sig.s.toArray())))(key.sign(operation_hash)) 
 
     return codec.bs58checkEncode(sig_bytes, sig_mapping[prefix.name])

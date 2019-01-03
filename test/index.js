@@ -90,17 +90,20 @@ const fn_tests = async () => {
 
     assert(
       edesk.address === 'tz1hgWvYdzLECdrq5zndGHwCGnUCJq1KFe3r'
-      && edesk.getPublicKey() === 'edpkunm1aRnRtHwVsBGSFgKmw5EhBn4gR6NC5JqVoAi57viSgAN3t5',
+      && edesk.getPublicKey() === 'edpkunm1aRnRtHwVsBGSFgKmw5EhBn4gR6NC5JqVoAi57viSgAN3t5'
+      && edesk.getSecretKey() === 'edskRjuxz9sYkZLsmyt5U2oLCsqJMLytt8ndke2jTEKHM8zneFSj8pZ8F4BQW3wQFWFkenBvSfzraBMHSoJWzMsnaq1oP1QQUU',
       'FN: decryptKey edesk')
 
     assert(
       spesk.address === 'tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB'
-      && spesk.getPublicKey() === 'sppk7aLxNrEXqt52YTEXmVwKQSu2phVrjnSQmF7V31xSAFXEq9PSETE', 
+      && spesk.getPublicKey() === 'sppk7aLxNrEXqt52YTEXmVwKQSu2phVrjnSQmF7V31xSAFXEq9PSETE'
+      && spesk.getSecretKey() === 'spsk25jYUuHr7PF4yd1w4bc7XKcp8dDmR8y7mwc8b4c3F7UXYn7vxJ', 
       'FN: decryptKey spesk')
 
     assert(
       p2esk.address === 'tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X'
-      && p2esk.getPublicKey() === 'p2pk67SFY4XDMaACBrbJfvhmfLVx3wNfNt4inWHRsCdZc13b7CASxbm', 
+      && p2esk.getPublicKey() === 'p2pk67SFY4XDMaACBrbJfvhmfLVx3wNfNt4inWHRsCdZc13b7CASxbm'
+      && p2esk.getSecretKey() === 'p2sk33568Eg2DXkg4aLQxQG2nQkL8yr4F3tR5xfqttMgkDQZzgb6RW', 
       'FN: decryptKey p2esk')
 
   }
