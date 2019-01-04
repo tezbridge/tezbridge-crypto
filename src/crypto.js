@@ -146,7 +146,7 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
 
     const sig_bytes = prefix.name === 'ed25519_secret_key' ? 
       new Uint8Array(nacl.sign.detached(operation_hash, key)) :
-      (sig => new Uint8Array(sig.r.toArray().concat(sig.s.toArray())))(key.sign(operation_hash)) 
+      (sig => new Uint8Array(sig.r.toArray().concat(sig.s.toArray())))(key.sign(operation_hash, {canonical: true})) 
 
     return codec.bs58checkEncode(sig_bytes, sig_mapping[prefix.name])
   } else {
