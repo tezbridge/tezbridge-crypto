@@ -2,7 +2,7 @@
 
 import { TextDecoder, TextEncoder } from 'util'
 
-import { BigNumber } from 'bignumber.js'
+import BN from 'bn.js'
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
 import type { Micheline } from './types'
@@ -352,7 +352,7 @@ export function encodeRawBytes(input : Micheline) : string {
         result.push(input.bytes)
 
       } else if (input.int) {
-        const num = new BigNumber(input.int, 10)
+        const num = new BN(input.int, 10)
         const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
         const binary = num.toString(2).replace('-', '')
         const pad = binary.length > 6 ?  binary.length + 7 - (binary.length - 6) % 7 : 6
@@ -473,8 +473,8 @@ export function decodeRawBytes(bytes : string) : Micheline {
           checknext = bytes[0] === '1'
         }
 
-        const num = new BigNumber(valid_bytes.reverse().join(''), 2)
-        return {int: num.toString()}
+        const num = new BN(valid_bytes.reverse().join(''), 2)
+        return {int: num.toString(10)}
       } else if (b === '02') {
         index += 2
 
