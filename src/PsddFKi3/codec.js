@@ -5,7 +5,7 @@ import { TextDecoder, TextEncoder } from 'util'
 import BN from 'bn.js'
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
-import type { Micheline } from './types'
+import type { Micheline } from '../types'
 
 export function fromHex(x : string) {
   return new Uint8Array(elliptic.utils.toArray(x, 'hex'))
