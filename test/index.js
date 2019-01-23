@@ -6,6 +6,13 @@ import { assert } from './util'
 const TBC = TezBridgeCrypto
 
 const fn_tests = async () => {
+	{
+		assert(
+			TBC.codec.encodeZarithUInt('127') === '7f' &&
+			TBC.codec.encodeZarithUInt('128') === '8001'
+		, 'FN: encodeZarithUInt')
+	}
+
   {
     const json_storage = {"prim":"Pair","args":[{"bytes":"01B2A4F12006B191111B11FAA0A126BCDDDED861DE00"},{"prim":"Pair","args":[{"bytes":"0000F9A61EEFD5D12786E70433B1EDC846AC9EB5FCD6"},{"prim":"Pair","args":[{"prim":"True"},{"prim":"Pair","args":[{"int":"213"},{"prim":"Pair","args":[{"int":"1242851"},{"int":"0"}]}]}]}]}]}
     const encoded_storage = TBC.codec.encodeRawBytes(json_storage)

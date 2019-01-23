@@ -315,6 +315,37 @@ const prim_mapping_reverse = {
   }
 }
 
+export function encodeZarithUInt(value : string) {
+  const num = new BN(value, 10)
+  const binary = num.toString(2).replace('-', '')
+  const pad = binary.length > 7 ?  binary.length + 7 - binary.length % 7 : 7
+
+  const splitted = binary.padStart(pad, '0').match(/\d{7}/g)
+  const reversed = splitted.reverse()
+
+  return reversed.map((x, i) => 
+    parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
+    .toString(16)
+    .padStart(2, '0')).join('')
+}
+
+export function encodeZarithInt(value : string) {
+  const num = new BN(value, 10)
+  const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
+  const binary = num.toString(2).replace('-', '')
+  const pad = binary.length > 6 ?  binary.length + 7 - (binary.length - 6) % 7 : 6
+
+  const splitted = binary.padStart(pad, '0').match(/\d{6,7}/g)
+  const reversed = splitted.reverse()
+
+  reversed[0] = positive_mark + reversed[0]
+
+  return reversed.map((x, i) => 
+    parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
+    .toString(16)
+    .padStart(2, '0')).join('')
+}
+
 export function encodeRawBytes(input : Micheline) : string {
   const rec = (input : Micheline) : string => {
     const result : Array<string> = []
@@ -352,20 +383,8 @@ export function encodeRawBytes(input : Micheline) : string {
         result.push(input.bytes)
 
       } else if (input.int) {
-        const num = new BN(input.int, 10)
-        const positive_mark = num.toString(2)[0] === '-' ? '1' : '0'
-        const binary = num.toString(2).replace('-', '')
-        const pad = binary.length > 6 ?  binary.length + 7 - (binary.length - 6) % 7 : 6
 
-        const splitted = binary.padStart(pad, '0').match(/\d{6,7}/g)
-        const reversed = splitted.reverse()
-
-        reversed[0] = positive_mark + reversed[0]
-        const num_hex = reversed.map((x, i) => 
-          parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
-          .toString(16)
-          .padStart(2, '0')).join('')
-
+        const num_hex = encodeZarithInt(input.int)
         result.push('00')
         result.push(num_hex)
 
@@ -510,5 +529,7 @@ export default {
   getContractHexKey,
   bytesConcat,
   encodeRawBytes,
-  decodeRawBytes
+  decodeRawBytes,
+  encodeZarithInt,
+  encodeZarithUInt
 }
