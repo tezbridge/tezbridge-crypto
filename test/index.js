@@ -9,8 +9,13 @@ const fn_tests = async () => {
 	{
 		assert(
 			TBC.codec.encodeZarithUInt('127') === '7f' &&
-			TBC.codec.encodeZarithUInt('128') === '8001'
+      TBC.codec.encodeZarithUInt('128') === '8001' &&
+			TBC.codec.encodeZarithUInt('13311') === 'ff67'
 		, 'FN: encodeZarithUInt')
+
+    assert(
+      TBC.codec.encodeZarithInt('5311') === 'bf52',
+      'FN: encodeZarithInt')
 	}
 
   {
