@@ -12,6 +12,18 @@ const tag_mapping = {
   p256_public_key: '02'
 }
 
+function pushContractId(arr : Array<string>, prefix, bytes) {
+  if (prefix.name === 'contract_hash') {
+    arr.push('01')
+    arr.push(codec.toHex(bytes))
+    arr.push('00')
+  } else {
+    arr.push('00')
+    arr.push(tag_mapping[prefix.name])
+    arr.push(codec.toHex(bytes))
+  }
+}
+
 const op_hex_mapping = {
   transaction(op : Object) {
     const result = ['08']
@@ -20,18 +32,14 @@ const op_hex_mapping = {
     const source_bytes = codec.bs58checkDecode(op.source, source_prefix.bytes)
     const dest_bytes = codec.bs58checkDecode(op.destination, dest_prefix.bytes)
   
-    result.push('00')
-    result.push(tag_mapping[source_prefix.name])
-    result.push(codec.toHex(source_bytes))
+    pushContractId(result, source_prefix, source_bytes)
 
     ;[op.fee, op.counter, op.gas_limit, op.storage_limit, op.amount].forEach(x => {
       const hex = codec.encodeZarithUInt(x)
       result.push(hex)
     })
 
-    result.push('00')
-    result.push(tag_mapping[dest_prefix.name])
-    result.push(codec.toHex(dest_bytes))
+    pushContractId(result, dest_prefix, dest_bytes)
 
     result.push(op.parameters ? 'FF' : '00')
     if (op.parameters) {
@@ -49,9 +57,7 @@ const op_hex_mapping = {
     const managerpkh_prefix = codec.bs58checkPrefixPick(op.managerPubkey)
     const managerpkh_bytes = codec.bs58checkDecode(op.managerPubkey, managerpkh_prefix.bytes)
 
-    result.push('00')
-    result.push(tag_mapping[source_prefix.name])
-    result.push(codec.toHex(source_bytes))
+    pushContractId(result, source_prefix, source_bytes)
 
     ;[op.fee, op.counter, op.gas_limit, op.storage_limit].forEach(x => {
       const hex = codec.encodeZarithUInt(x)
@@ -94,9 +100,7 @@ const op_hex_mapping = {
     const pk_prefix = codec.bs58checkPrefixPick(op.public_key)
     const pk_bytes = codec.bs58checkDecode(op.public_key, pk_prefix.bytes)
 
-    result.push('00')
-    result.push(tag_mapping[source_prefix.name])
-    result.push(codec.toHex(source_bytes))
+    pushContractId(result, source_prefix, source_bytes)
 
     ;[op.fee, op.counter, op.gas_limit, op.storage_limit].forEach(x => {
       const hex = codec.encodeZarithUInt(x)
