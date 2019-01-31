@@ -6,17 +6,17 @@ import { assert } from './util'
 const TBC = TezBridgeCrypto
 
 const fn_tests = async () => {
-	{
-		assert(
-			TBC.codec.encodeZarithUInt('127') === '7f' &&
+  {
+    assert(
+      TBC.codec.encodeZarithUInt('127') === '7f' &&
       TBC.codec.encodeZarithUInt('128') === '8001' &&
-			TBC.codec.encodeZarithUInt('13311') === 'ff67'
-		, 'FN: encodeZarithUInt')
+      TBC.codec.encodeZarithUInt('13311') === 'ff67'
+    , 'FN: encodeZarithUInt')
 
     assert(
       TBC.codec.encodeZarithInt('5311') === 'bf52',
       'FN: encodeZarithInt')
-	}
+  }
 
   {
     const json_storage = {"prim":"Pair","args":[{"bytes":"01B2A4F12006B191111B11FAA0A126BCDDDED861DE00"},{"prim":"Pair","args":[{"bytes":"0000F9A61EEFD5D12786E70433B1EDC846AC9EB5FCD6"},{"prim":"Pair","args":[{"prim":"True"},{"prim":"Pair","args":[{"int":"213"},{"prim":"Pair","args":[{"int":"1242851"},{"int":"0"}]}]}]}]}]}
@@ -57,9 +57,7 @@ const fn_tests = async () => {
         ]}
       ]}
     ]}
-    // (Pair "tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X" (Pair "KT1AthoYG1RnR9wDrsk4euuXh22SteYmvoUC" (Pair "edpkunm1aRnRtHwVsBGSFgKmw5EhBn4gR6NC5JqVoAi57viSgAN3t5" (Pair "tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB" "spsig1VP6h6zPvriDguRw1QShFXsQz2LXMQrMNMBtwq6XRZmVC8SEmkqmtKMDoDLt44pR3JzeEjZ2BNZHZ2p3NP9u1RiS1kHoPy"))))
-    // (pair address (pair (contract (or (contract bytes) (or (pair address (pair nat (option (pair (contract bytes) bytes)))) (pair nat bytes)))) (pair key (pair key_hash signature))))
-
+    
     assert(TBC.codec.encodeRawBytes(sample1) === '0a000000160000f1cb2a6739025bf5008c4e8f610ba0f0f496f3fc'.toUpperCase(), 
       'FN: pack data sample1')
     assert(TBC.codec.encodeRawBytes(sample2) === '0a000000160001806d2628efefae710659f622a5d667b12d379024'.toUpperCase(), 
