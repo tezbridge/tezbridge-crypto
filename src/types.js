@@ -17,4 +17,9 @@ export type Micheline =
 | {bytes: string}
 | {int: string}
 | {string: string}
+| {address: string}
+| {contract: string}
+| {key: string}
+| {key_hash: string}
+| {signature: string}
 | Array<Micheline>

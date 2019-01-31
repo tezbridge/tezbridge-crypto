@@ -347,6 +347,26 @@ export function encodeZarithInt(value : string) {
     .padStart(2, '0')).join('')
 }
 
+export function toTzBytes(source : string, is_key_hash : boolean = false) {
+  const prefix = bs58checkPrefixPick(source)
+  const bytes = bs58checkDecode(source, prefix.bytes)
+
+  const tag_mapping = {
+    contract_hash: '01',
+    ed25519_public_key_hash: is_key_hash ? '00' : '0000',
+    secp256k1_public_key_hash: is_key_hash ? '01' : '0001',
+    p256_public_key_hash: is_key_hash ? '02' : '0002',
+    ed25519_public_key: '00',
+    secp256k1_public_key: '01',
+    p256_public_key: '02'
+  }
+  const padding_mapping = {
+    contract_hash: '00'
+  }
+
+  return (tag_mapping[prefix.name] || '') + toHex(bytes) + (padding_mapping[prefix.name] || '')
+}
+
 export function encodeRawBytes(input : Micheline) : string {
   const rec = (input : Micheline) : string => {
     const result : Array<string> = []
@@ -376,12 +396,24 @@ export function encodeRawBytes(input : Micheline) : string {
           result.push(annots_bytes)
         }
 
-      } else if (input.bytes) {
+      } else if (input.bytes || 
+                 input.address || 
+                 input.contract || 
+                 input.key || 
+                 input.key_hash ||
+                 input.signature) {
 
-        const len = input.bytes.length / 2
+        const bytes = input.bytes || 
+          toTzBytes(input.address || 
+                    input.contract || 
+                    input.key || 
+                    input.key_hash ||
+                    input.signature, input.key_hash)
+
+        const len = bytes.length / 2
         result.push('0A')
         result.push(len.toString(16).padStart(8, '0'))
-        result.push(input.bytes)
+        result.push(bytes)
 
       } else if (input.int) {
 
@@ -522,6 +554,7 @@ export function decodeRawBytes(bytes : string) : Micheline {
 export default {
   fromHex,
   toHex,
+  toTzBytes,
   prefix,
   watermark,
   bs58checkEncode,

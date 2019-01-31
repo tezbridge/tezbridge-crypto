@@ -33,6 +33,60 @@ const fn_tests = async () => {
   }
 
   {
+    const sample1 = {address: 'tz1hgWvYdzLECdrq5zndGHwCGnUCJq1KFe3r'}
+    const sample2 = {address: 'tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB'}
+    const sample3 = {address: 'tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X'}
+    const sample4 = {contract: 'KT1AthoYG1RnR9wDrsk4euuXh22SteYmvoUC'}
+    const sample5 = {key: 'edpkunm1aRnRtHwVsBGSFgKmw5EhBn4gR6NC5JqVoAi57viSgAN3t5'}
+    const sample6 = {key_hash: 'tz1hgWvYdzLECdrq5zndGHwCGnUCJq1KFe3r'}
+    const sample7 = {key_hash: 'tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB'}
+    const sample8 = {key_hash: 'tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X'}
+    const sample9 = {signature: 'edsigu6FNEzqHPAbQAUjjKtcAFkiW4The5BQbCj53bCyV9st32aHrcZhqnzLWw74HiwMScMh1SiTgY8juYUAUsJ3JG2DvGeCFjd'}
+    const sample10 = {signature: 'spsig1VP6h6zPvriDguRw1QShFXsQz2LXMQrMNMBtwq6XRZmVC8SEmkqmtKMDoDLt44pR3JzeEjZ2BNZHZ2p3NP9u1RiS1kHoPy'}
+    const sample11 = {signature: 'p2sigsVk2Ld4ob7qmmfMhbkM79MH8xwXMgWP28kjMLnoRQ7aijRjWot7f9XP74GKGdCd7DKDKKjPDJaSsLi6fdf12nm4fqE2mG'}
+    const sample12 = {prim: 'Pair', args: [
+      sample3,
+      {prim: 'Pair', args: [
+        sample4,
+        {prim: 'Pair', args: [
+          sample5,
+          {prim: 'Pair', args: [
+            sample7,
+            sample10
+          ]}
+        ]}
+      ]}
+    ]}
+    // (Pair "tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X" (Pair "KT1AthoYG1RnR9wDrsk4euuXh22SteYmvoUC" (Pair "edpkunm1aRnRtHwVsBGSFgKmw5EhBn4gR6NC5JqVoAi57viSgAN3t5" (Pair "tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB" "spsig1VP6h6zPvriDguRw1QShFXsQz2LXMQrMNMBtwq6XRZmVC8SEmkqmtKMDoDLt44pR3JzeEjZ2BNZHZ2p3NP9u1RiS1kHoPy"))))
+    // (pair address (pair (contract (or (contract bytes) (or (pair address (pair nat (option (pair (contract bytes) bytes)))) (pair nat bytes)))) (pair key (pair key_hash signature))))
+
+    assert(TBC.codec.encodeRawBytes(sample1) === '0a000000160000f1cb2a6739025bf5008c4e8f610ba0f0f496f3fc'.toUpperCase(), 
+      'FN: pack data sample1')
+    assert(TBC.codec.encodeRawBytes(sample2) === '0a000000160001806d2628efefae710659f622a5d667b12d379024'.toUpperCase(), 
+      'FN: pack data sample2')
+    assert(TBC.codec.encodeRawBytes(sample3) === '0a000000160002688d34fccfa4a854b18dbbbd1b369f1b7f0e56d9'.toUpperCase(), 
+      'FN: pack data sample3')
+    assert(TBC.codec.encodeRawBytes(sample4) === '0a00000016011954991caa46dee50c6c501cf962514ba43f71a800'.toUpperCase(), 
+      'FN: pack data sample4')
+    assert(TBC.codec.encodeRawBytes(sample5) === '0a00000021009713dbe6f994d372a8c9a32bc4b3c249e6c6438f42eca1db2a0b342608a965ec'.toUpperCase(), 
+      'FN: pack data sample5')
+    assert(TBC.codec.encodeRawBytes(sample6) === '0a0000001500f1cb2a6739025bf5008c4e8f610ba0f0f496f3fc'.toUpperCase(), 
+      'FN: pack data sample6')
+    assert(TBC.codec.encodeRawBytes(sample7) === '0a0000001501806d2628efefae710659f622a5d667b12d379024'.toUpperCase(), 
+      'FN: pack data sample7')
+    assert(TBC.codec.encodeRawBytes(sample8) === '0a0000001502688d34fccfa4a854b18dbbbd1b369f1b7f0e56d9'.toUpperCase(), 
+      'FN: pack data sample8')
+    assert(TBC.codec.encodeRawBytes(sample9) === '0a00000040f7f82a9502877aa72afd1f4d08cd7261c1c806737f87007162a1848b78d268c9c4d6c3f7e46469c1227f51a4423202b9c70025a20353a00d961d1aae0f68e008'.toUpperCase(), 
+      'FN: pack data sample9')
+    assert(TBC.codec.encodeRawBytes(sample10) === '0a00000040b42b12c51e07aad7aa451da4bca41161b97759211ecf758d826e4b3a81b3af491c6804507e3962618d2caf3af5f5d669ee92f2dc935f02cdc62a4e699d25eb7a'.toUpperCase(), 
+      'FN: pack data sample10')
+    assert(TBC.codec.encodeRawBytes(sample11) === '0a00000040e6c98f54c10204ffa727118b68295d44b99dbe31ebc73a4ed05319baecda517229f67b1225a814b6b568478b3809432148e9ce932946ba8161ab62db73022afd'.toUpperCase(), 
+      'FN: pack data sample11')
+    assert(TBC.codec.encodeRawBytes(sample12) === '07070a000000160002688d34fccfa4a854b18dbbbd1b369f1b7f0e56d907070a00000016011954991caa46dee50c6c501cf962514ba43f71a80007070a00000021009713dbe6f994d372a8c9a32bc4b3c249e6c6438f42eca1db2a0b342608a965ec07070a0000001501806d2628efefae710659f622a5d667b12d3790240a00000040b42b12c51e07aad7aa451da4bca41161b97759211ecf758d826e4b3a81b3af491c6804507e3962618d2caf3af5f5d669ee92f2dc935f02cdc62a4e699d25eb7a'.toUpperCase(), 
+      'FN: pack data sample12')
+  }
+
+  {
     const a1 = new Uint8Array([])
     const a2 = new Uint8Array([1])
     const a3 = new Uint8Array([2, 255])
