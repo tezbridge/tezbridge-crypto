@@ -3,7 +3,7 @@
 import codec from './codec'
 
 
-const op_hex_mapping = {
+const op_hex2bytes = {
   transaction(op : Object) {
     const result = ['08']
   
@@ -80,7 +80,7 @@ export function forgeOperation(contents : Array<Object>, branch : string) {
   const result = [codec.toHex(branch_bytes)]
 
   contents.forEach(op => {
-    const op_hex = op_hex_mapping[op.kind](op)
+    const op_hex = op_hex2bytes[op.kind](op)
     result.push(op_hex)
   })
 
