@@ -21,8 +21,9 @@ export function bytesConcat(x : Uint8Array, y : Uint8Array) {
   return tmp
 }
 
-export function bs58checkEncode(input : Uint8Array, prefix : Uint8Array) {
-  return bs58check.encode(bytesConcat(prefix, input))
+export function bs58checkEncode(input : Uint8Array, prefix_info : Uint8Array | string) {
+  const prefix_bytes = typeof prefix_info === 'string' ? prefix[prefix_info] : prefix_info
+  return bs58check.encode(bytesConcat(prefix_bytes, input))
 }
 
 export function bs58checkDecode(input : string, prefix? : Uint8Array) {
@@ -315,6 +316,7 @@ const prim_mapping_reverse = {
   }
 }
 
+
 export function encodeZarithUInt(value : string) {
   const num = new BN(value, 10)
   const binary = num.toString(2).replace('-', '')
@@ -345,6 +347,60 @@ export function encodeZarithInt(value : string) {
     parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
     .toString(16)
     .padStart(2, '0')).join('')
+}
+
+export function toTzStrValue(input : string) {
+  const len_mapping = {
+    [44]() {
+      const tag = input.slice(0, 2)
+      if (tag === '00') {
+        const tag = input.slice(2, 4)
+        const tz_prefix = {
+          '00': 'ed25519_public_key_hash', 
+          '01': 'secp256k1_public_key_hash', 
+          '02': 'p256_public_key_hash'
+        }
+        return bs58checkEncode(fromHex(input.slice(4)), tz_prefix[tag])
+
+      } else if (tag === '01') {
+        return bs58checkEncode(fromHex(input.slice(2, 42)), 'contract_hash')
+
+      } else {
+        throw `Invalid tag(${tag}) for contract id`
+      }
+    },
+    [42]() {
+      const tag = input.slice(0, 2)
+      const tz_prefix = {
+        '00': 'ed25519_public_key_hash', 
+        '01': 'secp256k1_public_key_hash', 
+        '02': 'p256_public_key_hash'
+      }
+      return bs58checkEncode(fromHex(input.slice(2)), tz_prefix[tag])
+    },
+    [66]() {
+      const tag = input.slice(0, 2)
+      if (tag !== '00')
+        throw `Invalid tag(${tag}) for Ed25519 public key`
+
+      return bs58checkEncode(fromHex(input.slice(2)), 'ed25519_public_key')
+    },
+    [68]() {
+      const tag = input.slice(0, 2)
+      if (tag === '01')
+        return bs58checkEncode(fromHex(input.slice(2)), 'secp256k1_public_key')
+      else if (tag === '02')
+        return bs58checkEncode(fromHex(input.slice(2)), 'p256_public_key')
+      else 
+        throw `Invalid tag(${tag}) for Secp256k1 and P256 public key`
+    }
+  }
+
+  try {
+    return len_mapping[input.length]()
+  } catch(e) {
+    throw `Invalid input to decode to Micheline: ${input}`
+  }
 }
 
 export function toTzBytes(source : string, is_key_hash : boolean = false) {
@@ -555,6 +611,7 @@ export default {
   fromHex,
   toHex,
   toTzBytes,
+  toTzStrValue,
   prefix,
   watermark,
   bs58checkEncode,

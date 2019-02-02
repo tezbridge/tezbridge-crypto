@@ -1,5 +1,6 @@
 // @flow
 
+import BN from 'bn.js'
 import codec from './codec'
 
 
@@ -87,6 +88,125 @@ export function forgeOperation(contents : Array<Object>, branch : string) {
   return result.join('').toLowerCase()
 }
 
+export function parseOperationBytes(input : string) {
+  input = input.slice(64).toUpperCase()
+
+  let index = 0
+
+  const read = len => {
+    const result = input.slice(index, len ? index + len : undefined)
+    index += len
+    return result
+  }
+
+  const readUInt = () => {
+    const first_bytes = parseInt(read(2), 16).toString(2).padStart(8, '0')
+    const valid_bytes = [first_bytes.slice(1)]
+
+    let checknext = first_bytes[0] === '1'
+    while (checknext) {
+      const bytes = parseInt(read(2), 16).toString(2).padStart(8, '0')
+
+      valid_bytes.push(bytes.slice(1))
+      checknext = bytes[0] === '1'
+    }
+
+    const num = new BN(valid_bytes.reverse().join(''), 2)
+    return num.toString(10)
+  }
+
+  const output = []
+  while(index < input.length - 1) {
+    const op_tag = read(2)
+
+    if (op_tag === '07') {
+      const source = codec.toTzStrValue(read(44))
+      const fee = readUInt()
+      const counter = readUInt()
+      const gas_limit = readUInt()
+      const storage_limit = readUInt()
+      const public_key = codec.toTzStrValue(read())
+
+      output.push({
+        kind: 'reveal',
+        source,
+        fee,
+        counter,
+        gas_limit,
+        storage_limit,
+        public_key
+      })
+
+    } else if (op_tag === '08') {
+      const source = codec.toTzStrValue(read(44))
+      const fee = readUInt()
+      const counter = readUInt()
+      const gas_limit = readUInt()
+      const storage_limit = readUInt()
+      const amount = readUInt()
+      const destination = codec.toTzStrValue(read(44))
+      let parameters
+      if (read(2) === 'FF') {
+        const len = parseInt(read(8), 16) * 2
+        parameters = codec.decodeRawBytes(read(len))
+      }
+
+      output.push({
+        kind: 'transaction',
+        source,
+        fee,
+        counter,
+        gas_limit,
+        storage_limit,
+        amount,
+        destination,
+        parameters
+      })
+    } else if (op_tag === '09') {
+      const source = codec.toTzStrValue(read(44))
+      const fee = readUInt()
+      const counter = readUInt()
+      const gas_limit = readUInt()
+      const storage_limit = readUInt()
+      const managerPubkey = codec.toTzStrValue(read(42))
+      const balance = readUInt()
+      const spendable = read(2) === '00' ? false : true
+      const delegatable = read(2) === '00' ? false : true
+      const delegate = read(2) === '00' ? undefined : codec.toTzStrValue(read(42))
+      let script
+      if (read(2) === 'FF') {
+        const code_len = parseInt(read(8), 16) * 2
+        const code = codec.decodeRawBytes(read(code_len))
+
+        const storage_len = parseInt(read(8), 16) * 2
+        const storage = codec.decodeRawBytes(read(storage_len))
+        script = {code, storage}
+      }
+
+      output.push({
+        kind: 'origination',
+        source,
+        fee,
+        counter,
+        gas_limit,
+        storage_limit,
+        managerPubkey,
+        balance,
+        spendable,
+        delegatable,
+        delegate,
+        script
+      })
+    } else {
+      throw `Only support reveal(07), transaction(08) and origination(09) tags.\nBut current tag is ${op_tag} at index: ${index}`
+    }
+
+  }
+
+  return output
+}
+
 export default {
-  forgeOperation
+  forgeOperation,
+  parseOperationBytes
 }
