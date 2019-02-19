@@ -60,7 +60,7 @@ class Key {
   }
 }
 
-function getRandomBytes(len : number) {
+export function genRandomBytes(len : number) {
   if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
     return window.crypto.getRandomValues(new Uint8Array(len))
   } else {
@@ -104,6 +104,25 @@ export function decryptKey(encrypted : string, password : string) : Key {
   }
 }
 
+export function encryptKey(scheme : 'ed25519' | 'secp256k1' | 'p256', 
+                           unencrypted : Uint8Array, 
+                           password : string) : string {
+  if (unencrypted.length !== 32) 
+    throw `The length of key bytes to encrypt can only be 32. (should use seed for ed25519)`
+
+  const salt = genRandomBytes(8)
+  const key = crypto.pbkdf2Sync(password, salt, 32768, 32, 'sha512')
+  const encrypted_msg = secretbox(unencrypted, new Uint8Array(24), key)
+  const prefix_mapping = {
+    ed25519: codec.prefix.ed25519_encrypted_seed,
+    secp256k1: codec.prefix.secp256k1_encrypted_secret_key,
+    p256: codec.prefix.p256_encrypted_secret_key
+  }
+
+  const bytes = codec.bytesConcat(salt, encrypted_msg)
+  return codec.bs58checkEncode(bytes, prefix_mapping[scheme])
+}
+
 export function getKeyFromSecretKey(sk: string) {
   const prefix = codec.bs58checkPrefixPick(sk)
   const bytes = codec.bs58checkDecode(sk, prefix.bytes)
@@ -127,11 +146,15 @@ export function getKeyFromSeed(seed : string | Uint8Array) {
   return new Key('ed25519', key_pair.secretKey, key_pair.publicKey)
 }
 
-export function getKeyFromWords(words : string | Array<string>, password? : string) {
+export function getSeedFromWords(words : string | Array<string>, password? : string) {
   const mnemonic = words instanceof Array ? words.join(' ') : words
-  const seed_bytes = bip39.mnemonicToSeed(mnemonic, password).slice(0, 32)
-  return getKeyFromSeed(seed_bytes)
+  return bip39.mnemonicToSeed(mnemonic, password).slice(0, 32)
 }
+
+export function getKeyFromWords(words : string | Array<string>, password? : string) {
+  return getKeyFromSeed(getSeedFromWords(words, password))
+}
+
 
 export function genRandomKey(scheme : 'ed25519' | 'secp256k1' | 'p256') {
   const key_len = scheme === 'ed25519' ? 64 : 32
@@ -141,7 +164,7 @@ export function genRandomKey(scheme : 'ed25519' | 'secp256k1' | 'p256') {
     p256: getKeyFromP256
   }
 
-  return key_mapping[scheme](getRandomBytes(key_len))
+  return key_mapping[scheme](genRandomBytes(key_len))
 }
 
 export function signOperation(input_operation : Uint8Array | string, secret_key : string) {
@@ -176,9 +199,12 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
 export default {
   getMnemonic,
   getKeyFromSeed,
+  getSeedFromWords,
   getKeyFromWords,
   genRandomKey,
+  genRandomBytes,
   decryptKey,
+  encryptKey,
   getKeyFromSecretKey,
   signOperation
 }
