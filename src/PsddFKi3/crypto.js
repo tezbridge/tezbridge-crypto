@@ -60,6 +60,14 @@ class Key {
   }
 }
 
+function getRandomBytes(len : number) {
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+    return window.crypto.getRandomValues(new Uint8Array(len))
+  } else {
+    return crypto.randomBytes(len)
+  }
+}
+
 function getKeyFromEd25519(input : Uint8Array) {
   const ed25519 = new elliptic.eddsa('ed25519')
   const key_pair = nacl.sign.keyPair[input.length === 32 ? 'fromSeed' : 'fromSecretKey'](input)
@@ -125,6 +133,17 @@ export function getKeyFromWords(words : string | Array<string>, password? : stri
   return getKeyFromSeed(seed_bytes)
 }
 
+export function genRandomKey(scheme : 'ed25519' | 'secp256k1' | 'p256') {
+  const key_len = scheme === 'ed25519' ? 64 : 32
+  const key_mapping = {
+    ed25519: getKeyFromEd25519,
+    secp256k1: getKeyFromSecp256k1,
+    p256: getKeyFromP256
+  }
+
+  return key_mapping[scheme](getRandomBytes(key_len))
+}
+
 export function signOperation(input_operation : Uint8Array | string, secret_key : string) {
   const operation_bytes = typeof input_operation === 'string' ? codec.fromHex(input_operation) : input_operation
   const marked_operation = codec.bytesConcat(codec.watermark.operation(), operation_bytes)
@@ -158,6 +177,7 @@ export default {
   getMnemonic,
   getKeyFromSeed,
   getKeyFromWords,
+  genRandomKey,
   decryptKey,
   getKeyFromSecretKey,
   signOperation

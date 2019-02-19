@@ -191,6 +191,16 @@ const fn_tests = async () => {
     const sec_forge_result = TBC.localop.forgeOperation(parse_result, branch)
     assert(result === sec_forge_result, 'FN: local forgeOperation 2')
   }
+
+  {
+    const random_edsk = TBC.crypto.genRandomKey('ed25519').getSecretKey()
+    const random_spsk = TBC.crypto.genRandomKey('secp256k1').getSecretKey()
+    const random_p2sk = TBC.crypto.genRandomKey('p256').getSecretKey()
+
+    assert(random_edsk.length === 98 && random_edsk.indexOf('edsk') === 0, 'FN: genRandomKey edsk')
+    assert(random_spsk.length === 54 && random_spsk.indexOf('spsk') === 0, 'FN: genRandomKey spsk')
+    assert(random_p2sk.length === 54 && random_p2sk.indexOf('p2sk') === 0, 'FN: genRandomKey p2sk')
+  }
 }
 
 const main = async () => {
