@@ -193,13 +193,36 @@ const fn_tests = async () => {
   }
 
   {
-    const random_edsk = TBC.crypto.genRandomKey('ed25519').getSecretKey()
-    const random_spsk = TBC.crypto.genRandomKey('secp256k1').getSecretKey()
-    const random_p2sk = TBC.crypto.genRandomKey('p256').getSecretKey()
+    const random_ed25519 = TBC.crypto.genRandomKey('ed25519')
+    const random_edsk = random_ed25519.getSecretKey()
+
+    const random_secp256k1 = TBC.crypto.genRandomKey('secp256k1')
+    const random_spsk = random_secp256k1.getSecretKey()
+
+    const random_p256 = TBC.crypto.genRandomKey('p256')
+    const random_p2sk = random_p256.getSecretKey()
 
     assert(random_edsk.length === 98 && random_edsk.indexOf('edsk') === 0, 'FN: genRandomKey edsk')
     assert(random_spsk.length === 54 && random_spsk.indexOf('spsk') === 0, 'FN: genRandomKey spsk')
     assert(random_p2sk.length === 54 && random_p2sk.indexOf('p2sk') === 0, 'FN: genRandomKey p2sk')
+
+    const random_password = TBC.codec.toHex(TBC.crypto.genRandomBytes(16))
+
+    const words24 = TBC.crypto.getMnemonic(256)
+    const random_seed = TBC.crypto.getSeedFromWords(words24, random_password)
+    const random_edsk2 = TBC.crypto.getKeyFromSeed(random_seed).getSecretKey()
+
+    const encrypted_edesk = TBC.crypto.encryptKey('ed25519', random_seed, random_password)
+    const encrypted_spesk = TBC.crypto.encryptKey('secp256k1', random_secp256k1.secret_key, random_password)
+    const encrypted_p2esk = TBC.crypto.encryptKey('p256', random_p256.secret_key, random_password)
+
+    const decrypted_edesk = TBC.crypto.decryptKey(encrypted_edesk, random_password)
+    const decrypted_spesk = TBC.crypto.decryptKey(encrypted_spesk, random_password)
+    const decrypted_p2esk = TBC.crypto.decryptKey(encrypted_p2esk, random_password)
+
+    assert(decrypted_edesk.getSecretKey() === random_edsk2, 'FN: encryptKey ed25519')
+    assert(decrypted_spesk.getSecretKey() === random_spsk, 'FN: encryptKey secp256k1')
+    assert(decrypted_p2esk.getSecretKey() === random_p2sk, 'FN: encryptKey p256')
   }
 }
 
