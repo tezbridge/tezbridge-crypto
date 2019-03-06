@@ -1,11 +1,15 @@
 // @flow
 
-import { TextDecoder, TextEncoder } from 'util'
-
 import BN from 'bn.js'
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
 import type { Micheline } from '../types'
+
+
+const [TextEncoder, TextDecoder] = typeof window !== 'undefined' 
+  ? [window.TextEncoder, window.TextDecoder] 
+  : [require('util').TextEncoder, require('util').TextDecoder]
+
 
 export function fromHex(x : string) {
   return new Uint8Array(elliptic.utils.toArray(x, 'hex'))
