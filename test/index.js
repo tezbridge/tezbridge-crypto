@@ -148,9 +148,9 @@ const fn_tests = async () => {
   }
 
   {
-    const edesk = TBC.crypto.decryptKey('edesk1TgH1sGSQ2rwM1Sk475ikTLqeYrSH2a6tvUuZdzkox8C91n55pVGo7QpxbFhT1KAe3zpPFWPvrusrBY9fnc', 'a')
-    const spesk = TBC.crypto.decryptKey('spesk29FVwwKJ4FXpJtGKraxS4QcDeaoBL1JPsnqnofUSAf9yFioRbfRq5eJEoXpcUBPKnFjj8WEfj7cQjZkRxAs', 'a')
-    const p2esk = TBC.crypto.decryptKey('p2esk1qLhMDUemxyMkfjAjmKw5QQSp7FhGadvBgthrehjWwJSofUtcd56HpEv8GqutoA3hC8wMAqeU2sX5p4XHjX', 'a')
+    const edesk = await TBC.crypto.decryptKey('edesk1TgH1sGSQ2rwM1Sk475ikTLqeYrSH2a6tvUuZdzkox8C91n55pVGo7QpxbFhT1KAe3zpPFWPvrusrBY9fnc', 'a')
+    const spesk = await TBC.crypto.decryptKey('spesk29FVwwKJ4FXpJtGKraxS4QcDeaoBL1JPsnqnofUSAf9yFioRbfRq5eJEoXpcUBPKnFjj8WEfj7cQjZkRxAs', 'a')
+    const p2esk = await TBC.crypto.decryptKey('p2esk1qLhMDUemxyMkfjAjmKw5QQSp7FhGadvBgthrehjWwJSofUtcd56HpEv8GqutoA3hC8wMAqeU2sX5p4XHjX', 'a')
 
     assert(
       edesk.address === 'tz1hgWvYdzLECdrq5zndGHwCGnUCJq1KFe3r'
@@ -212,13 +212,13 @@ const fn_tests = async () => {
     const random_seed = TBC.crypto.getSeedFromWords(words24, random_password)
     const random_edsk2 = TBC.crypto.getKeyFromSeed(random_seed).getSecretKey()
 
-    const encrypted_edesk = TBC.crypto.encryptKey('ed25519', random_seed, random_password)
-    const encrypted_spesk = TBC.crypto.encryptKey('secp256k1', random_secp256k1.secret_key, random_password)
-    const encrypted_p2esk = TBC.crypto.encryptKey('p256', random_p256.secret_key, random_password)
+    const encrypted_edesk = await TBC.crypto.encryptKey('ed25519', random_seed, random_password)
+    const encrypted_spesk = await TBC.crypto.encryptKey('secp256k1', random_secp256k1.secret_key, random_password)
+    const encrypted_p2esk = await TBC.crypto.encryptKey('p256', random_p256.secret_key, random_password)
 
-    const decrypted_edesk = TBC.crypto.decryptKey(encrypted_edesk, random_password)
-    const decrypted_spesk = TBC.crypto.decryptKey(encrypted_spesk, random_password)
-    const decrypted_p2esk = TBC.crypto.decryptKey(encrypted_p2esk, random_password)
+    const decrypted_edesk = await TBC.crypto.decryptKey(encrypted_edesk, random_password)
+    const decrypted_spesk = await TBC.crypto.decryptKey(encrypted_spesk, random_password)
+    const decrypted_p2esk = await TBC.crypto.decryptKey(encrypted_p2esk, random_password)
 
     assert(decrypted_edesk.getSecretKey() === random_edsk2, 'FN: encryptKey ed25519')
     assert(decrypted_spesk.getSecretKey() === random_spsk, 'FN: encryptKey secp256k1')

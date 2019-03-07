@@ -1,14 +1,25 @@
 // @flow
 
+const [TextEncoder, TextDecoder] = (() => {
+  if (process.env.NODE_ENV === 'browser') {
+    return [
+      window.TextEncoder,
+      window.TextDecoder
+    ]
+  } else {
+    const util = require('util')
+    return [
+      util.TextEncoder,
+      util.TextDecoder
+    ]
+  }
+})()
+
+
 import BN from 'bn.js'
 import bs58check from 'bs58check'
 import elliptic from 'elliptic'
 import type { Micheline } from '../types'
-
-
-const [TextEncoder, TextDecoder] = typeof window !== 'undefined' 
-  ? [window.TextEncoder, window.TextDecoder] 
-  : [require('util').TextEncoder, require('util').TextDecoder]
 
 
 export function fromHex(x : string) {

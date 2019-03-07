@@ -1,10 +1,53 @@
 // @flow
 
+const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
+  if (process.env.NODE_ENV === 'browser') {
+    return [
+      (len : number) => window.crypto.getRandomValues(new Uint8Array(len)),
+      (password, salt) =>
+        window.crypto.subtle.importKey(
+          'raw',
+          new TextEncoder().encode(password),
+          {
+            name: 'PBKDF2',
+          },
+          false, 
+          ['deriveBits']
+        )
+        .then(key => {
+          return window.crypto.subtle.deriveBits(
+            {
+              name: 'PBKDF2',
+              salt: salt,
+              iterations: 32768,
+              hash: {name: 'SHA-512'}
+            },
+            key,
+            256 
+          )
+        })
+    ]
+  } else {
+    const crypto = require('crypto')
+    return [
+      crypto.randomBytes,
+      (passowrd, salt) =>
+        new Promise<Uint8Array>((resolve, reject) => {
+          crypto.pbkdf2(passowrd, salt, 32768, 32, 'sha512', (err, derived_key) => {
+            if (err) 
+              reject(err)
+            else
+              resolve(derived_key)
+          })
+        })
+    ]
+  }
+})()
+
 import bip39 from 'bip39'
 import codec from './codec'
 import elliptic from 'elliptic'
 import blake from 'blakejs'
-import crypto from 'crypto'
 import { secretbox } from 'tweetnacl'
 import nacl from 'tweetnacl'
 
@@ -60,14 +103,6 @@ class Key {
   }
 }
 
-export function genRandomBytes(len : number) {
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-    return window.crypto.getRandomValues(new Uint8Array(len))
-  } else {
-    return crypto.randomBytes(len)
-  }
-}
-
 function getKeyFromEd25519(input : Uint8Array) {
   const ed25519 = new elliptic.eddsa('ed25519')
   const key_pair = nacl.sign.keyPair[input.length === 32 ? 'fromSeed' : 'fromSecretKey'](input)
@@ -84,12 +119,12 @@ function getKeyFromP256(key : Uint8Array) {
   return new Key('p256', key, pub_key)
 }
  
-export function decryptKey(encrypted : string, password : string) : Key {
+export async function decryptKey(encrypted : string, password : string) : Promise<Key> {
   const prefix = codec.bs58checkPrefixPick(encrypted)
   const encrypted_bytes = codec.bs58checkDecode(encrypted, prefix.bytes)
   const salt = encrypted_bytes.slice(0, 8)
   const encrypted_msg = encrypted_bytes.slice(8)
-  const key = crypto.pbkdf2Sync(password, salt, 32768, 32, 'sha512')
+  const key = await deriveKeyByPBKDF2(password, salt)
   const result = secretbox.open(encrypted_msg, new Uint8Array(24), key)
   const key_mapping = {
     ed25519_encrypted_seed: getKeyFromEd25519,
@@ -104,14 +139,14 @@ export function decryptKey(encrypted : string, password : string) : Key {
   }
 }
 
-export function encryptKey(scheme : 'ed25519' | 'secp256k1' | 'p256', 
+export async function encryptKey(scheme : 'ed25519' | 'secp256k1' | 'p256', 
                            unencrypted : Uint8Array, 
-                           password : string) : string {
+                           password : string) : Promise<string> {
   if (unencrypted.length !== 32) 
     throw `The length of key bytes to encrypt can only be 32. (should use seed for ed25519)`
 
   const salt = genRandomBytes(8)
-  const key = crypto.pbkdf2Sync(password, salt, 32768, 32, 'sha512')
+  const key = await deriveKeyByPBKDF2(password, salt)
   const encrypted_msg = secretbox(unencrypted, new Uint8Array(24), key)
   const prefix_mapping = {
     ed25519: codec.prefix.ed25519_encrypted_seed,
