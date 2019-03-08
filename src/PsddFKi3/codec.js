@@ -38,7 +38,7 @@ export function bytesConcat(x : Uint8Array, y : Uint8Array) {
 
 export function bs58checkEncode(input : Uint8Array, prefix_info : Uint8Array | string) {
   const prefix_bytes = typeof prefix_info === 'string' ? prefix[prefix_info] : prefix_info
-  return bs58check.encode(bytesConcat(prefix_bytes, input))
+  return bs58check.encode(Buffer.from(bytesConcat(prefix_bytes, input)))
 }
 
 export function bs58checkDecode(input : string, prefix? : Uint8Array) {
