@@ -114,14 +114,14 @@ const fn_tests = async () => {
   }
 
   {
-    const words12 = TBC.crypto.getMnemonic(128)
-    assert(words12.split(' ').length === 12, 'FN: getMnemonic 128')
+    const words12 = TBC.crypto.genMnemonic(128)
+    assert(words12.split(' ').length === 12, 'FN: genMnemonic 128')
 
-    const words18 = TBC.crypto.getMnemonic(192)
-    assert(words18.split(' ').length === 18, 'FN: getMnemonic 192')
+    const words18 = TBC.crypto.genMnemonic(192)
+    assert(words18.split(' ').length === 18, 'FN: genMnemonic 192')
 
-    const words24 = TBC.crypto.getMnemonic(256)
-    assert(words24.split(' ').length === 24, 'FN: getMnemonic 256')
+    const words24 = TBC.crypto.genMnemonic(256)
+    assert(words24.split(' ').length === 24, 'FN: genMnemonic 256')
 
     const key = TBC.crypto.getKeyFromWords(words24, 'abcdefg')
     const secret_key = key.getSecretKey()
@@ -208,7 +208,7 @@ const fn_tests = async () => {
 
     const random_password = TBC.codec.toHex(TBC.crypto.genRandomBytes(16))
 
-    const words24 = TBC.crypto.getMnemonic(256)
+    const words24 = TBC.crypto.genMnemonic(256)
     const random_seed = TBC.crypto.getSeedFromWords(words24, random_password)
     const random_edsk2 = TBC.crypto.getKeyFromSeed(random_seed).getSecretKey()
 

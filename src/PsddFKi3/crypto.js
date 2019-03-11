@@ -55,7 +55,7 @@ export function blake2bHash(input : Uint8Array, len : number = 32) {
   return blake.blake2b(input, null, len)
 }
 
-export function getMnemonic(strength? : number) {
+export function genMnemonic(strength? : number) {
   return bip39.generateMnemonic(strength)
 }
 
@@ -232,7 +232,7 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
 }
 
 export default {
-  getMnemonic,
+  genMnemonic,
   getKeyFromSeed,
   getSeedFromWords,
   getKeyFromWords,
