@@ -26,6 +26,7 @@ const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
             256 
           )
         })
+        .then(key => new Uint8Array(key))
     ]
   } else {
     const crypto = require('crypto')
