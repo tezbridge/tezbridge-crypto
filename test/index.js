@@ -174,8 +174,16 @@ const fn_tests = async () => {
 
   {
     const key = TBC.crypto.getKeyFromSecretKey('edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un')
-    assert(key.address === 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e', 'FN: get key from secret key')
-    assert(key.getPublicKey() === 'edpkv2FiD8nFLXC4XfAr33pqt7KfKxx9oH2tJdwqza2fjhGVYC8f31', 'FN: get key from secret key')
+    assert(key.address === 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e' &&
+           key.getPublicKey() === 'edpkv2FiD8nFLXC4XfAr33pqt7KfKxx9oH2tJdwqza2fjhGVYC8f31', 'FN: get ed25519 key from secret key')
+
+    const key2 = TBC.crypto.getKeyFromSecretKey('spsk25jYUuHr7PF4yd1w4bc7XKcp8dDmR8y7mwc8b4c3F7UXYn7vxJ')
+    assert(key2.address === 'tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB' &&
+           key2.getPublicKey() === 'sppk7aLxNrEXqt52YTEXmVwKQSu2phVrjnSQmF7V31xSAFXEq9PSETE', 'FN: get secp256k1 key from secret key')
+
+    const key3 = TBC.crypto.getKeyFromSecretKey('p2sk33568Eg2DXkg4aLQxQG2nQkL8yr4F3tR5xfqttMgkDQZzgb6RW')
+    assert(key3.address === 'tz3Vrs3r11Tu9fZvu4mHFcuNt9FK9QuCw83X' &&
+           key3.getPublicKey() === 'p2pk67SFY4XDMaACBrbJfvhmfLVx3wNfNt4inWHRsCdZc13b7CASxbm', 'FN: get p256 key from secret key')
   }
 
   {

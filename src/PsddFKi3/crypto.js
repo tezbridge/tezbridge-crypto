@@ -166,7 +166,7 @@ export function getKeyFromSecretKey(sk: string) {
   const key_mapping = {
     ed25519_secret_key: getKeyFromEd25519,
     secp256k1_secret_key: getKeyFromSecp256k1,
-    p256_encrypted_secret_key: getKeyFromP256
+    p256_secret_key: getKeyFromP256
   }
 
   if (prefix.name in key_mapping) {
