@@ -4,7 +4,7 @@ const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
   if (process.env.NODE_ENV === 'browser') {
     return [
       (len : number) => window.crypto.getRandomValues(new Uint8Array(len)),
-      (password, salt) =>
+      (password : string, salt : Uint8Array) =>
         window.crypto.subtle.importKey(
           'raw',
           new TextEncoder().encode(password),
@@ -32,9 +32,9 @@ const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
     const crypto = require('crypto')
     return [
       crypto.randomBytes,
-      (passowrd, salt) =>
+      (passowrd : string, salt : Uint8Array) =>
         new Promise<Uint8Array>((resolve, reject) => {
-          crypto.pbkdf2(passowrd, salt, 32768, 32, 'sha512', (err, derived_key) => {
+          crypto.pbkdf2(passowrd, Buffer.from(salt), 32768, 32, 'sha512', (err, derived_key) => {
             if (err) 
               reject(err)
             else
@@ -45,6 +45,7 @@ const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
   }
 })()
 
+import bs58check from 'bs58check'
 import bip39 from 'bip39'
 import codec from './codec'
 import elliptic from 'elliptic'
@@ -58,6 +59,55 @@ export function blake2bHash(input : Uint8Array, len : number = 32) {
 
 export function genMnemonic(strength? : number) {
   return bip39.generateMnemonic(strength)
+}
+
+export class EncryptedBox {
+  encrypted : Uint8Array
+  prepared : Promise<void>
+
+  constructor(input : string = '', pin : string = '') {
+    try {
+      codec.bs58checkPrefixPick(input)
+
+      const secret_key_bytes = bs58check.decode(input)
+      const password = genRandomBytes(8)
+      const salt = genRandomBytes(8)
+
+      this.prepared = deriveKeyByPBKDF2(pin + codec.toHex(password), salt)
+      .then(key => {
+        this.encrypted = codec.bytesConcat(
+          codec.bytesConcat(password, salt),
+          secretbox(secret_key_bytes, new Uint8Array(24), key))
+      })
+
+    } catch(_) {
+
+      this.encrypted = bs58check.decode(input)
+      this.prepared = Promise.resolve()
+
+    }
+  }
+
+  async show() {
+    await this.prepared
+    return bs58check.encode(this.encrypted)
+  }
+
+  async reveal(pin : string = '') {
+    await this.prepared
+    
+    const password = this.encrypted.slice(0, 8)
+    const salt = this.encrypted.slice(8, 16)
+    const encrypted_msg = this.encrypted.slice(16)
+
+    const key = await deriveKeyByPBKDF2(pin + codec.toHex(password), salt)
+    const decrypted_key = secretbox.open(encrypted_msg, new Uint8Array(24), key)
+
+    if (decrypted_key)
+      return bs58check.encode(decrypted_key)
+    else
+      throw 'Invalid pin for revealing the key'
+  }
 }
 
 class Key {
@@ -233,6 +283,7 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
 }
 
 export default {
+  EncryptedBox,
   genMnemonic,
   getKeyFromSeed,
   getSeedFromWords,

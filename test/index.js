@@ -232,6 +232,25 @@ const fn_tests = async () => {
     assert(decrypted_spesk.getSecretKey() === random_spsk, 'FN: encryptKey secp256k1')
     assert(decrypted_p2esk.getSecretKey() === random_p2sk, 'FN: encryptKey p256')
   }
+
+  {
+    const seed = 'edsk3unZB8C89hLYPtWz9Eu1P6TrHopesaaGgodxugsEhLR2S4cQNC'
+    const edsk = 'edskS68LAmi2nQHCEzvMs9CAJaCpWWtkFTavc2DBnxLaNvFerXBgjggKNu9QFPTyT5BuE1ttNbkHj7c3Q4AuPtjaFzfyj4t9un'
+    const spsk = 'spsk2dCGVnBXuid6EUGZc648ABvMKuTzDxuMVxfFa4R9Vpnm7rzhDS'
+    const p2sk = 'p2sk2Qh3F6i3TxYtteL63svHCvBcaynee1WeuP72gt72bcVo2f7JBE'
+
+    const box1 = new TBC.crypto.EncryptedBox(seed)
+    const box2 = new TBC.crypto.EncryptedBox(edsk)
+    const box3 = new TBC.crypto.EncryptedBox(spsk)
+    const box4 = new TBC.crypto.EncryptedBox(p2sk)
+    const box5 = new TBC.crypto.EncryptedBox(edsk, 'abcd')
+
+    assert(await new TBC.crypto.EncryptedBox(await box1.show()).reveal() === seed &&
+           await new TBC.crypto.EncryptedBox(await box2.show()).reveal() === edsk &&
+           await new TBC.crypto.EncryptedBox(await box3.show()).reveal() === spsk &&
+           await new TBC.crypto.EncryptedBox(await box4.show()).reveal() === p2sk &&
+           await new TBC.crypto.EncryptedBox(await box5.show()).reveal('abcd') === edsk, 'FN: EncryptedBox')
+  }
 }
 
 const main = async () => {
