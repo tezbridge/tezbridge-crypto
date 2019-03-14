@@ -90,7 +90,7 @@ export class EncryptedBox {
 
   async show() {
     await this.prepared
-    return bs58check.encode(this.encrypted)
+    return bs58check.encode(Buffer.from(this.encrypted))
   }
 
   async reveal(pin : string = '') {
@@ -104,7 +104,7 @@ export class EncryptedBox {
     const decrypted_key = secretbox.open(encrypted_msg, new Uint8Array(24), key)
 
     if (decrypted_key)
-      return bs58check.encode(decrypted_key)
+      return bs58check.encode(Buffer.from(decrypted_key))
     else
       throw 'Invalid pin for revealing the key'
   }
