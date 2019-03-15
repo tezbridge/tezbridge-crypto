@@ -108,6 +108,11 @@ export class EncryptedBox {
     else
       throw 'Invalid pin for revealing the key'
   }
+
+  async revealKey(pin : string = '') {
+    const raw_key = await this.reveal(pin)
+    return getKeyFromSecretKey(raw_key)
+  }
 }
 
 class Key {

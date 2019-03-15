@@ -250,6 +250,8 @@ const fn_tests = async () => {
            await new TBC.crypto.EncryptedBox(await box3.show()).reveal() === spsk &&
            await new TBC.crypto.EncryptedBox(await box4.show()).reveal() === p2sk &&
            await new TBC.crypto.EncryptedBox(await box5.show()).reveal('abcd') === edsk, 'FN: EncryptedBox')
+
+    assert((await new TBC.crypto.EncryptedBox(await box5.show()).revealKey('abcd')).getSecretKey() === edsk, 'FN: EncryptedBox revealKey')
   }
 }
 
