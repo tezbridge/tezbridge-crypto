@@ -4,5 +4,4 @@ node_js:
 before_script:
   - npm install -g parcel-bundler
 script: 
-  - npm run build
   - npm run test
