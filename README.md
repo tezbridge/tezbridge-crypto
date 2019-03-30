@@ -32,6 +32,11 @@ import TezBridgeCrypto from 'tezbridge-crypto'
 
 ## API reference
 
+### TezBridgeCrypto
+
+##### `TezBridgeCrypto.modProtocol(protocol)`
+Switch protocol on the fly
+
 ### TezBridgeCrypto.codec
 
 ##### `TezBridgeCrypto.codec.fromHex(hex_str)`
@@ -78,3 +83,57 @@ Encode int decimal value to zarith bytes string.
 
 ##### `TezBridgeCrypto.codec.encodeZarithUInt(decimal_str)`
 Encode uint decimal value to zarith bytes string.
+
+
+### TezBridgeCrypto.crypto
+
+##### TezBridgeCrypto.crypto.EncryptedBox
+This class can create an instance with encrypted key for each usage.
+```javascript
+const box = new TBC.crypto.EncryptedBox(any_key_str)
+box.show().then(encrypted_key => console.log(encrypted_key))
+box.reveal().then(raw_key => console.log(raw_key))
+```
+
+##### `TezBridgeCrypto.crypto.genMnemonic(strength?)`
+Generate a mnemonic with specific strength(entropy-bit)
+
+##### `TezBridgeCrypto.crypto.getKeyFromSeed(seed_str)`
+Get key pair from a seed value
+
+##### `TezBridgeCrypto.crypto.getSeedFromWords(words, password?)`
+Get seed from mnemonic words with passwords
+
+##### `TezBridgeCrypto.crypto.getKeyFromWords(words, password?)`
+Get key pair from mnemonic words with passwords
+
+##### `TezBridgeCrypto.crypto.genRandomKey(scheme)`
+Generate a new key.
+
+scheme can only be: `ed25519` | `secp256k1` | `p256`
+
+##### `TezBridgeCrypto.crypto.genRandomBytes(len)`
+Generate `len` long bytes randomly.
+
+##### `TezBridgeCrypto.crypto.decryptKey(encrypted_key, password)`
+Decrypt key(prefix in edesk, spesk, p2esk) with password.
+
+##### `TezBridgeCrypto.crypto.encryptKey(scheme, sk, password)`
+Encrypt key with password.
+
+scheme can only be: `ed25519` | `secp256k1` | `p256`
+
+##### `TezBridgeCrypto.crypto.getKeyFromSecretKey(sk)`
+Get key pair from secret key.
+
+##### `TezBridgeCrypto.crypto.signOperation(operation_bytes, sk)`
+Sign operation bytes with secret key.
+
+
+### TezBridgeCrypto.localop
+
+##### `TezBridgeCrypto.localop.forgeOperation(contents, branch)`
+Forge operation localy without RPC node
+
+##### `TezBridgeCrypto.localop.parseOperationBytes(bytes_str)`
+Parse operation bytes to Micheline.
