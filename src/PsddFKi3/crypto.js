@@ -65,20 +65,13 @@ export class EncryptedBox {
   encrypted : Uint8Array
   prepared : Promise<void>
 
-  constructor(input : string = '', pin : string = '') {
+  constructor(input : string = '', pwd : string = '') {
     try {
       codec.bs58checkPrefixPick(input)
 
       const secret_key_bytes = bs58check.decode(input)
-      const password = genRandomBytes(8)
-      const salt = genRandomBytes(8)
 
-      this.prepared = deriveKeyByPBKDF2(pin + codec.toHex(password), salt)
-      .then(key => {
-        this.encrypted = codec.bytesConcat(
-          codec.bytesConcat(password, salt),
-          secretbox(secret_key_bytes, new Uint8Array(24), key))
-      })
+      this.prepared = this.encrypt(secret_key_bytes, pwd)
 
     } catch(_) {
 
@@ -88,29 +81,42 @@ export class EncryptedBox {
     }
   }
 
+  encrypt(bytes : Uint8Array, pwd : string = '') {
+    const password = genRandomBytes(8)
+    const salt = genRandomBytes(8)
+    return deriveKeyByPBKDF2(pwd + codec.toHex(password), salt)
+    .then(key => {
+      this.encrypted = codec.bytesConcat(
+        codec.bytesConcat(password, salt),
+        secretbox(bytes, new Uint8Array(24), key))
+    })
+  }
+
   async show() {
     await this.prepared
     return bs58check.encode(Buffer.from(this.encrypted))
   }
 
-  async reveal(pin : string = '') {
+  async reveal(pwd : string = '', new_pwd : string = '') {
     await this.prepared
     
     const password = this.encrypted.slice(0, 8)
     const salt = this.encrypted.slice(8, 16)
     const encrypted_msg = this.encrypted.slice(16)
 
-    const key = await deriveKeyByPBKDF2(pin + codec.toHex(password), salt)
+    const key = await deriveKeyByPBKDF2(pwd + codec.toHex(password), salt)
     const decrypted_key = secretbox.open(encrypted_msg, new Uint8Array(24), key)
+
+    await this.encrypt(new Uint8Array(decrypted_key), new_pwd || pwd)
 
     if (decrypted_key)
       return bs58check.encode(Buffer.from(decrypted_key))
     else
-      throw 'Invalid pin for revealing the key'
+      throw 'Invalid pwd for revealing the key'
   }
 
-  async revealKey(pin : string = '') {
-    const raw_key = await this.reveal(pin)
+  async revealKey(pwd : string = '', new_pwd : string = '') {
+    const raw_key = await this.reveal(pwd)
     return getKeyFromSecretKey(raw_key)
   }
 }

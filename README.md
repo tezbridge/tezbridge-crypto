@@ -90,9 +90,10 @@ Encode uint decimal value to zarith bytes string.
 ##### TezBridgeCrypto.crypto.EncryptedBox
 This class can create an instance with encrypted key for each usage.
 ```javascript
-const box = new TBC.crypto.EncryptedBox(any_key_str)
+const box = new TBC.crypto.EncryptedBox(any_sk_str or EncryptedBox_show()_result, password?)
 box.show().then(encrypted_key => console.log(encrypted_key))
-box.reveal().then(raw_key => console.log(raw_key))
+box.reveal().then(raw_key => console.log(raw_key))    // reveal the secret key string
+box.revealKey().then(key => console.log(key))    // reveal a Key instance which can access the pk, pkh
 ```
 
 ##### `TezBridgeCrypto.crypto.genMnemonic(strength?)`

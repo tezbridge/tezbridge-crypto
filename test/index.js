@@ -251,6 +251,30 @@ const fn_tests = async () => {
            await new TBC.crypto.EncryptedBox(await box4.show()).reveal() === p2sk &&
            await new TBC.crypto.EncryptedBox(await box5.show()).reveal('abcd') === edsk, 'FN: EncryptedBox')
 
+    const box1_enc = await box1.show()
+    await box1.reveal()
+    const box2_enc = await box2.show()
+    await box2.reveal()
+    const box3_enc = await box3.show()
+    await box3.reveal()
+    const box4_enc = await box4.show()
+    await box4.reveal()
+    const box5_enc = await box5.show()
+    await box5.reveal('abcd')
+
+    assert(box1_enc !== await box1.show() &&
+           box2_enc !== await box2.show() &&
+           box3_enc !== await box3.show() &&
+           box4_enc !== await box4.show() &&
+           box5_enc !== await box5.show(), 'FN: EncryptedBox switch key for each reveal')
+
+
+    assert(await new TBC.crypto.EncryptedBox(await box1.show()).reveal() === seed &&
+           await new TBC.crypto.EncryptedBox(await box2.show()).reveal() === edsk &&
+           await new TBC.crypto.EncryptedBox(await box3.show()).reveal() === spsk &&
+           await new TBC.crypto.EncryptedBox(await box4.show()).reveal() === p2sk &&
+           await new TBC.crypto.EncryptedBox(await box5.show()).reveal('abcd') === edsk, 'FN: EncryptedBox second')
+
     assert((await new TBC.crypto.EncryptedBox(await box5.show()).revealKey('abcd')).getSecretKey() === edsk, 'FN: EncryptedBox revealKey')
   }
 }
