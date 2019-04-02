@@ -112,12 +112,17 @@ export class EncryptedBox {
     if (decrypted_key)
       return bs58check.encode(Buffer.from(decrypted_key))
     else
-      throw 'Invalid pwd for revealing the key'
+      throw 'Invalid password for revealing the key'
   }
 
   async revealKey(pwd : string = '', new_pwd : string = '') {
-    const raw_key = await this.reveal(pwd)
-    return getKeyFromSecretKey(raw_key)
+    const raw_key = await this.reveal(pwd, new_pwd)
+    const prefix = codec.bs58checkPrefixPick(raw_key)
+    
+    if (prefix.name === 'ed25519_seed')
+      return getKeyFromSeed(raw_key)
+    else
+      return getKeyFromSecretKey(raw_key)
   }
 }
 

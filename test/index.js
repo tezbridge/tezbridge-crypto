@@ -252,15 +252,15 @@ const fn_tests = async () => {
            await new TBC.crypto.EncryptedBox(await box5.show()).reveal('abcd') === edsk, 'FN: EncryptedBox')
 
     const box1_enc = await box1.show()
-    await box1.reveal()
+    await box1.revealKey()
     const box2_enc = await box2.show()
-    await box2.reveal()
+    await box2.revealKey()
     const box3_enc = await box3.show()
-    await box3.reveal()
+    await box3.revealKey()
     const box4_enc = await box4.show()
-    await box4.reveal()
+    await box4.revealKey()
     const box5_enc = await box5.show()
-    await box5.reveal('abcd')
+    await box5.revealKey('abcd')
 
     assert(box1_enc !== await box1.show() &&
            box2_enc !== await box2.show() &&
