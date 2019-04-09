@@ -97,7 +97,7 @@ export class EncryptedBox {
     return bs58check.encode(Buffer.from(this.encrypted))
   }
 
-  async reveal(pwd : string = '', new_pwd : string = '') {
+  async reveal(pwd : string = '', new_pwd? : string) {
     await this.prepared
     
     const password = this.encrypted.slice(0, 8)
@@ -107,7 +107,7 @@ export class EncryptedBox {
     const key = await deriveKeyByPBKDF2(pwd + codec.toHex(password), salt)
     const decrypted_key = secretbox.open(encrypted_msg, new Uint8Array(24), key)
 
-    await this.encrypt(new Uint8Array(decrypted_key), new_pwd || pwd)
+    await this.encrypt(new Uint8Array(decrypted_key), new_pwd === undefined ? pwd : new_pwd)
 
     if (decrypted_key)
       return bs58check.encode(Buffer.from(decrypted_key))
@@ -115,7 +115,7 @@ export class EncryptedBox {
       throw 'Invalid password for revealing the key'
   }
 
-  async revealKey(pwd : string = '', new_pwd : string = '') {
+  async revealKey(pwd : string = '', new_pwd? : string) {
     const raw_key = await this.reveal(pwd, new_pwd)
     const prefix = codec.bs58checkPrefixPick(raw_key)
     
