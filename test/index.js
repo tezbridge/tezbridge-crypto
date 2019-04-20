@@ -198,6 +198,16 @@ const fn_tests = async () => {
 
     const sec_forge_result = TBC.localop.forgeOperation(parse_result, branch)
     assert(result === sec_forge_result, 'FN: local forgeOperation 2')
+
+    const originate_contract = '3ed59b015fdfbb366651ceddced813912891e3a2ff68adf5a29c7cd2b38e45bf090000f235a32922318fa7b0aa72604b6bdd2dbcd9100880b518d0a30280b518e0d40300f235a32922318fa7b0aa72604b6bdd2dbcd9100800ffff00ff000000b302000000ae05000764036c036c0501036c0502020000009b0321051f02000000020317031609310000000f036c036c02000000060358034f032700000000020000000b051f02000000020321034c072e020000002603200200000019051f0200000010020000000b051f02000000020321034c034c053d036d0342020000002603200200000019051f0200000010020000000b051f02000000020321034c034c053d036d0342051f020000000603200320032000000002030b'
+    const originate_detail = TBC.localop.parseOperationBytes(originate_contract)
+
+    const answer = '[{"kind":"origination","source":"tz1hiiUL7SWtqWWJZqJamJjxZZYRgp8RFSYH","fee":"400000","counter":"37328","gas_limit":"400000","storage_limit":"60000","managerPubkey":"tz1hiiUL7SWtqWWJZqJamJjxZZYRgp8RFSYH","balance":"0","spendable":true,"delegatable":true,"script":{"code":[{"prim":"parameter","args":[{"prim":"or","args":[{"prim":"unit"},{"prim":"unit"}]}]},{"prim":"storage","args":[{"prim":"unit"}]},{"prim":"code","args":[[{"prim":"DUP"},{"prim":"DIP","args":[[{"prim":"CDR"}]]},{"prim":"CAR"},{"prim":"LAMBDA","args":[{"prim":"unit"},{"prim":"unit"},[{"prim":"RENAME"},{"prim":"UNIT"},{"prim":"FAILWITH"}]]},[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}],{"prim":"IF_LEFT","args":[[{"prim":"DROP"},[{"prim":"DIP","args":[[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]]},{"prim":"SWAP"}],{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}],[{"prim":"DROP"},[{"prim":"DIP","args":[[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]]},{"prim":"SWAP"}],{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}]]},{"prim":"DIP","args":[[{"prim":"DROP"},{"prim":"DROP"},{"prim":"DROP"}]]}]]}],"storage":{"prim":"Unit"}}}]'
+    assert(JSON.stringify(originate_detail) === answer, 'FN: parseOperationBytes with LAMBDA')
+
+    const originate_local_forge = TBC.localop.forgeOperation(JSON.parse(answer), 'BLBxMbcPTcsVHV14iZwmCuk2LP1negRTMwovKMnbVMBFVFxae1t')
+    assert(originate_local_forge === originate_contract, 'FN: forgeOperation with LAMBDA')
+
   }
 
   {

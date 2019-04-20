@@ -451,21 +451,45 @@ export function encodeRawBytes(input : Micheline) : string {
 
     } else if (input instanceof Object) {
       if (input.prim) {
-        const args_len = input.args ? input.args.length : 0
-        result.push(prim_mapping_reverse[args_len][!!input.annots])
-        result.push(op_mapping_reverse[input.prim])
-        if (input.args) {
-          input.args.forEach(arg => {
-            result.push(rec(arg))
-          })
+
+        if (input.prim === 'LAMBDA') {
+          result.push('09')
+          result.push(op_mapping_reverse[input.prim])
+          if (input.args) {
+            const inner_result = []
+            input.args.forEach(arg => {
+              inner_result.push(rec(arg))
+            })
+            const len = inner_result.join('').length / 2
+            result.push(len.toString(16).padStart(8, '0'))
+            inner_result.forEach(x => result.push(x))
+          }
+
+          const annots_bytes = input.annots 
+            ? input.annots.map(x => toHex(new TextEncoder().encode(x))).join('20')
+            : ''
+
+          result.push((annots_bytes.length / 2).toString(16).padStart(8, '0'))
+          annots_bytes && result.push(annots_bytes)
+
+        } else {
+          const args_len = input.args ? input.args.length : 0
+          result.push(prim_mapping_reverse[args_len][!!input.annots])
+          result.push(op_mapping_reverse[input.prim])
+          if (input.args) {
+            input.args.forEach(arg => {
+              result.push(rec(arg))
+            })
+          }
+
+          if (input.annots) {
+            const annots_bytes = input.annots.map(x => 
+              toHex(new TextEncoder().encode(x))).join('20')
+            result.push((annots_bytes.length / 2).toString(16).padStart(8, '0'))
+            result.push(annots_bytes)
+          }
         }
 
-        if (input.annots) {
-          const annots_bytes = input.annots.map(x => 
-            toHex(new TextEncoder().encode(x))).join('20')
-          result.push((annots_bytes.length / 2).toString(16).padStart(8, '0'))
-          result.push(annots_bytes)
-        }
 
       } else if (input.bytes || 
                  input.address || 
@@ -526,6 +550,9 @@ export function decodeRawBytes(bytes : string) : Micheline {
       index += 2
       const op = op_mapping[read(2)]
       index += 2
+
+      if (op === 'LAMBDA') 
+        index += 8
 
       const args = Array.apply(null, new Array(prim.len))
       const result = {prim: op, args: args.map(() => rec()), annots: undefined}
