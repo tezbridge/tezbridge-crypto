@@ -60,6 +60,23 @@ const op_hex2bytes = {
 
     return result.join('')
   },
+  delegation(op : Object) {
+    const result = ['10']
+
+    result.push(codec.toTzBytes(op.source))
+
+    ;[op.fee, op.counter, op.gas_limit, op.storage_limit].forEach(x => {
+      const hex = codec.encodeZarithUInt(x)
+      result.push(hex)
+    })
+
+    result.push(op.delegate ? 'FF' : '00')
+    if (op.delegate) {
+      result.push(codec.toTzBytes(op.delegate, true))
+    }
+
+    return result.join('')
+  },
   reveal(op : Object) {
     const result = ['07']
 
@@ -81,6 +98,9 @@ export function forgeOperation(contents : Array<Object>, branch : string) {
   const result = [codec.toHex(branch_bytes)]
 
   contents.forEach(op => {
+    if (!op_hex2bytes[op.kind])
+      throw `Only support reveal(07), transaction(08), origination(09) and delegation(10) operations.\nBut current operation is ${op.kind}`
+
     const op_hex = op_hex2bytes[op.kind](op)
     result.push(op_hex)
   })
@@ -197,8 +217,27 @@ export function parseOperationBytes(input : string) {
         delegate,
         script
       })
+    } else if (op_tag === '10') {
+
+      const source = codec.toTzStrValue(read(44))
+      const fee = readUInt()
+      const counter = readUInt()
+      const gas_limit = readUInt()
+      const storage_limit = readUInt()
+      const delegate = read(2) === '00' ? undefined : codec.toTzStrValue(read(42))
+
+      output.push({
+        kind: 'delegation',
+        source,
+        fee,
+        counter,
+        gas_limit,
+        storage_limit,
+        delegate
+      })
+
     } else {
-      throw `Only support reveal(07), transaction(08) and origination(09) tags.\nBut current tag is ${op_tag} at index: ${index}`
+      throw `Only support reveal(07), transaction(08), origination(09) and delegation(10) tags.\nBut current tag is ${op_tag} at index: ${index}`
     }
 
   }
