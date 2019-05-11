@@ -189,10 +189,10 @@ const fn_tests = async () => {
   {
     const branch = 'BKzNLgzWbHxYaDoWw9ZmYvfpD8Hv13jP78WWTBo1qsQ5Kvv7mmZ'
 
-    const delegate_contents = [{"kind":"delegation","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"1240","counter":"5790","gas_limit":"10000","storage_limit":"0","delegate": "tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB"}]
+    const delegate_contents = [{"kind":"delegation","source":"KT1RAi84xP59LeZtAxa6zL4Yhi4r7cGCdey3","fee":"1420","counter":"2","gas_limit":"10000","storage_limit":"0","delegate": "tz1YCABRTa6H8PLKx2EtDWeCGPaKxUhNgv47"}]
     const delegate_result = TBC.localop.forgeOperation(delegate_contents, branch)
 
-    assert(delegate_result === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a1000007f3fb9969c45a907a20e487e14fc2347d15c0289d8099e2d904e00ff01806d2628efefae710659f622a5d667b12d379024', 'FN: local forgeOperation delegation')
+    assert(delegate_result === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a0a01b5ed47f8774d1324bd9e82a13110613f5800a1fc008c0b02904e00ff0089b5122297e589f9ba8b91f4bf74804da2fe8d4a', 'FN: local forgeOperation delegation')
 
     const contents = [{"kind":"transaction","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"9455","counter":"5790","gas_limit":"10100","storage_limit":"0","amount":"10","destination":"tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB"},{"kind":"transaction","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"0","counter":"5791","gas_limit":"67891","storage_limit":"0","amount":"0","destination":"KT1AthoYG1RnR9wDrsk4euuXh22SteYmvoUC","parameters":{"prim":"Right","args":[{"prim":"Left","args":[{"prim":"Pair","args":[{"string":"tz1bfQHTZv1oM78fA1MXreBHua7wvKvS5uCe"},{"prim":"Pair","args":[{"int":"1"},{"prim":"None"}]}]}]}]}},{"kind":"origination","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"0","counter":"5792","gas_limit":"11603","storage_limit":"323","managerPubkey":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","balance":"5","spendable":true,"delegatable":false,"script":{"code":[{"prim":"parameter","args":[{"prim":"contract","args":[{"prim":"unit"}],"annots":[":X"]}]},{"prim":"storage","args":[{"prim":"unit"}]},{"prim":"code","args":[[{"prim":"CDR","annots":["@storage_slash_1"]},{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}]]}],"storage":{"prim":"Unit"}}}]
     const result = TBC.localop.forgeOperation(contents, branch)

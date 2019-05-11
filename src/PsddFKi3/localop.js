@@ -61,7 +61,7 @@ const op_hex2bytes = {
     return result.join('')
   },
   delegation(op : Object) {
-    const result = ['10']
+    const result = ['0a']
 
     result.push(codec.toTzBytes(op.source))
 
@@ -99,7 +99,7 @@ export function forgeOperation(contents : Array<Object>, branch : string) {
 
   contents.forEach(op => {
     if (!op_hex2bytes[op.kind])
-      throw `Only support reveal(07), transaction(08), origination(09) and delegation(10) operations.\nBut current operation is ${op.kind}`
+      throw `Only support reveal(07), transaction(08), origination(09) and delegation(0a) operations.\nBut current operation is ${op.kind}`
 
     const op_hex = op_hex2bytes[op.kind](op)
     result.push(op_hex)
@@ -217,7 +217,7 @@ export function parseOperationBytes(input : string) {
         delegate,
         script
       })
-    } else if (op_tag === '10') {
+    } else if (op_tag === '0a') {
 
       const source = codec.toTzStrValue(read(44))
       const fee = readUInt()
@@ -237,7 +237,7 @@ export function parseOperationBytes(input : string) {
       })
 
     } else {
-      throw `Only support reveal(07), transaction(08), origination(09) and delegation(10) tags.\nBut current tag is ${op_tag} at index: ${index}`
+      throw `Only support reveal(07), transaction(08), origination(09) and delegation(0a) tags.\nBut current tag is ${op_tag} at index: ${index}`
     }
 
   }
