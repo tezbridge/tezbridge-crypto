@@ -13,8 +13,10 @@ This library contains useful codec and crypto utilities for Tezos.
 ## Installation
 `npm i tezbridge-crypto`
 
+
 ## Requirements
 - `parcel-bundler` is needed. (`npm install -g parcel-bundler`)
+- When the library is built for brower usage, the node env should be set to `browser`(`NODE_ENV=browser`)
 
 ## Building
 ```
