@@ -46,7 +46,7 @@ const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
 })()
 
 import bs58check from 'bs58check'
-import bip39 from 'bip39'
+import * as bip39 from 'bip39'
 import codec from './codec'
 import elliptic from 'elliptic'
 import blake from 'blakejs'
@@ -250,7 +250,7 @@ export function getKeyFromSeed(seed : string | Uint8Array) {
 
 export function getSeedFromWords(words : string | Array<string>, password? : string) {
   const mnemonic = words instanceof Array ? words.join(' ') : words
-  return bip39.mnemonicToSeed(mnemonic, password).slice(0, 32)
+  return bip39.mnemonicToSeedSync(mnemonic, password).slice(0, 32)
 }
 
 export function getKeyFromWords(words : string | Array<string>, password? : string) {
