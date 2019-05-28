@@ -57,8 +57,8 @@ export function blake2bHash(input : Uint8Array, len : number = 32) {
   return blake.blake2b(input, null, len)
 }
 
-export function genMnemonic(strength? : number) {
-  return bip39.generateMnemonic(strength)
+export function genMnemonic(strength? : number, lang? : string) {
+  return bip39.generateMnemonic(strength, undefined, bip39.wordlists[lang])
 }
 
 export class EncryptedBox {

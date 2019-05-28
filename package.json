@@ -1,6 +1,6 @@
 {
   "name": "tezbridge-crypto",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "description": "The TezBridge crypto library for Tezos blockchain in JavaScript with Flow type system",
   "main": "dist/index.js",
   "browser": "dist/browser.js",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
-    "bip39": "^2.5.0",
+    "bip39": "^2.6.0",
     "blakejs": "^1.1.0",
     "bn.js": "^4.11.8",
     "bs58check": "^2.1.2",
