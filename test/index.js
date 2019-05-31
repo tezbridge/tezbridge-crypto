@@ -1,6 +1,6 @@
 // @flow
 
-import TezBridgeCrypto from './../src/index'
+import TezBridgeCrypto from '../Pt24m4xi/index'
 import { assert } from './util'
 const TBC = TezBridgeCrypto
 
