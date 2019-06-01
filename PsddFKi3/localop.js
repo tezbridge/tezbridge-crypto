@@ -3,6 +3,9 @@
 import BN from 'bn.js'
 import codec from './codec'
 
+export const op_fields = {
+  manager_pubkey: 'managerPubkey'
+} 
 
 const op_hex2bytes = {
   transaction(op : Object) {
@@ -36,7 +39,7 @@ const op_hex2bytes = {
       result.push(hex)
     })
 
-    result.push(codec.toTzBytes(op.managerPubkey, true))
+    result.push(codec.toTzBytes(op[op_fields.manager_pubkey], true))
 
     result.push(codec.encodeZarithUInt(op.balance))
 
@@ -188,7 +191,7 @@ export function parseOperationBytes(input : string) {
       const counter = readUInt()
       const gas_limit = readUInt()
       const storage_limit = readUInt()
-      const managerPubkey = codec.toTzStrValue(read(42))
+      const manager_pubkey = codec.toTzStrValue(read(42))
       const balance = readUInt()
       const spendable = read(2) === '00' ? false : true
       const delegatable = read(2) === '00' ? false : true
@@ -210,7 +213,7 @@ export function parseOperationBytes(input : string) {
         counter,
         gas_limit,
         storage_limit,
-        managerPubkey,
+        [op_fields.manager_pubkey]: manager_pubkey,
         balance,
         spendable,
         delegatable,
