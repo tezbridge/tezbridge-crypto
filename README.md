@@ -29,7 +29,8 @@ npm run build
 ## TezBridgeCrypto
 
 ```javascript
-import TezBridgeCrypto from 'tezbridge-crypto'
+import TezBridgeCrypto from 'tezbridge-crypto/Pt24m4xi'
+// import TezBridgeCrypto from 'tezbridge-crypto/PsddFKi3'
 ```
 
 ## API reference
