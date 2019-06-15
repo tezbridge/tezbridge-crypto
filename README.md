@@ -18,6 +18,9 @@ This library contains useful codec and crypto utilities for Tezos.
 - `parcel-bundler` is needed. (`npm install -g parcel-bundler`)
 - When the library is built for brower usage, the node env should be set to `browser`(`NODE_ENV=browser`)
 
+## Test
+`npm run test`
+
 # Documentation
 
 ## TezBridgeCrypto
@@ -30,9 +33,6 @@ import TezBridgeCrypto from 'tezbridge-crypto/Pt24m4xi'
 ## API reference
 
 ### TezBridgeCrypto
-
-##### `TezBridgeCrypto.modProtocol(protocol)`
-Switch protocol on the fly
 
 ### TezBridgeCrypto.codec
 
