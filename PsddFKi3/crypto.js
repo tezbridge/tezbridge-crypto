@@ -127,7 +127,7 @@ export class EncryptedBox {
   }
 }
 
-class Key {
+export class Key {
   name : string
   secret_key : Uint8Array
   pub_key : Uint8Array
@@ -138,7 +138,11 @@ class Key {
     this.secret_key = secret_key
     this.pub_key = pub_key
 
-    this.address = {
+    this.address = this.getPublicKeyHash()
+  }
+
+  getPublicKeyHash() {
+    return {
       ed25519: () => 
         codec.bs58checkEncode(blake2bHash(this.pub_key, 20), codec.prefix.ed25519_public_key_hash),
       secp256k1: () => 
@@ -315,6 +319,7 @@ export function signOperation(input_operation : Uint8Array | string, secret_key 
 }
 
 export default {
+  Key,
   EncryptedBox,
   genMnemonic,
   getKeyFromSeed,

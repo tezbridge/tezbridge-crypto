@@ -1,6 +1,6 @@
 {
   "name": "tezbridge-crypto",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "description": "The TezBridge crypto library for Tezos blockchain in JavaScript with Flow type system",
   "main": "Pt24m4xi/index.js",
   "scripts": {
