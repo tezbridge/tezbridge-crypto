@@ -182,12 +182,14 @@ function getKeyFromEd25519(input : Uint8Array) {
 }
 function getKeyFromSecp256k1(key : Uint8Array) {
   const key_pair = (new elliptic.ec('secp256k1')).keyFromPrivate(key)
-  const pub_key = new Uint8Array([2].concat(key_pair.getPublic().getX().toArray()))
+  const prefix = key_pair.getPublic().getY().toArray()[31] % 2 ? 3 : 2
+  const pub_key = new Uint8Array([prefix].concat(key_pair.getPublic().getX().toArray()))
   return new Key('secp256k1', key, pub_key)
 }
 function getKeyFromP256(key : Uint8Array) {
   const key_pair = (new elliptic.ec('p256')).keyFromPrivate(key)
-  const pub_key = new Uint8Array([3].concat(key_pair.getPublic().getX().toArray()))
+  const prefix = key_pair.getPublic().getY().toArray()[31] % 2 ? 3 : 2
+  const pub_key = new Uint8Array([prefix].concat(key_pair.getPublic().getX().toArray()))
   return new Key('p256', key, pub_key)
 }
  
