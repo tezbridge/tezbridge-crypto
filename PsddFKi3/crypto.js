@@ -324,6 +324,7 @@ export default {
   Key,
   EncryptedBox,
   genMnemonic,
+  blake2bHash,
   getKeyFromSeed,
   getSeedFromWords,
   getKeyFromWords,
