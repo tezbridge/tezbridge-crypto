@@ -16,7 +16,7 @@ This library contains useful codec and crypto utilities for Tezos.
 
 ## Requirements
 - `parcel-bundler` is needed. (`npm install -g parcel-bundler`)
-- When the library is built for brower usage, the node env should be set to `browser`(`NODE_ENV=browser`)
+- When the library is built for brower usage, setting the env value `BROWSER_OPT=true` can shrink the output file.
 
 ## Test
 `npm run test`

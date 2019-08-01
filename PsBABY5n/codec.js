@@ -1,7 +1,7 @@
 // @flow
 
 const [TextEncoder, TextDecoder] = (() => {
-  if (process.env.NODE_ENV === 'browser') {
+  if (process.env.BROWSER_OPT) {
     return [
       window.TextEncoder,
       window.TextDecoder

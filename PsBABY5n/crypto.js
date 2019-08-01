@@ -1,7 +1,7 @@
 // @flow
 
 const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
-  if (process.env.NODE_ENV === 'browser') {
+  if (process.env.BROWSER_OPT) {
     return [
       (len : number) => window.crypto.getRandomValues(new Uint8Array(len)),
       (password : string, salt : Uint8Array) =>
