@@ -1,6 +1,9 @@
 var assert = require('assert')
 var Buffer = require('safe-buffer').Buffer
-var crypto = require('crypto')
+var crypto = {
+  createHash: require('create-hash'),
+  createHmac: require('create-hmac')
+}
 var cs = require('coinstring')
 var secp256k1 = require('secp256k1')
 
