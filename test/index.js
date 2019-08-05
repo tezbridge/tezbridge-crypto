@@ -127,14 +127,15 @@ const fn_tests = async () => {
     const secret_key = key.getSecretKey()
     assert(secret_key.slice(0,4) === 'edsk' && secret_key.length === 98, 'FN: getKeyFromWords')
 
-//     const derived_key = TBC.crypto.deriveKeyFromWords(words18, undefined, `m/0'/0'`, 'ed25519')
-//     assert(derived_key.address.slice(0,3) === 'tz1', 'FN: deriveKeyFromWords')
-// 
-//     const derived_key2 = TBC.crypto.deriveKeyFromWords(words18, 'dgd', `m/44'/0'`, 'secp256k1')
-//     assert(derived_key2.address.slice(0,3) === 'tz2', 'FN: deriveKeyFromWords')
-// 
-//     const derived_key3 = TBC.crypto.deriveKeyFromWords(words18, 'dgd', `m/44'/44'`, 'p256')
-//     assert(derived_key3.address.slice(0,3) === 'tz3', 'FN: deriveKeyFromWords')
+    const words = 'move usage giant fun diet maze layer under cluster normal gentle alarm suffer recipe stool talent era awkward miss summer rate tackle spatial oxygen'
+    const derived_key = TBC.crypto.deriveKeyFromWords(words, undefined, `m/44'/1729'/0'/0'`, 'ed25519')
+    assert(derived_key.address === 'tz1fKEqVVnNEPGg8tSZvqSXUEqs8g2VGd4CU', 'FN: deriveKeyFromWords')
+
+    const derived_key2 = TBC.crypto.deriveKeyFromWords(words, undefined, `m/44'/1729'/0'/0'`, 'secp256k1')
+    assert(derived_key2.address === 'tz2AhV7kPAw2D8KTkoP2XszFpXu7dfTQJt9m', 'FN: deriveKeyFromWords')
+
+    const derived_key3 = TBC.crypto.deriveKeyFromWords(words, undefined, `m/44'/1729'/0'/0'`, 'p256')
+    assert(derived_key3.address === 'tz3UcErdKdUvz6niaFahADLioFv8FUXB2KU7', 'FN: deriveKeyFromWords')
   }
 
   {

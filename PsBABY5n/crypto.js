@@ -45,6 +45,7 @@ const [genRandomBytes, deriveKeyByPBKDF2] = (() => {
   }
 })()
 
+import { deriveKey } from '../hdkey'
 import bs58check from 'bs58check'
 import * as bip39 from 'bip39'
 import codec from './codec'
@@ -275,21 +276,19 @@ export function genRandomKey(scheme : 'ed25519' | 'secp256k1' | 'p256') {
   return key_mapping[scheme](genRandomBytes(key_len))
 }
 
-// TODO: Need to implement SLIP-0010
-// export function deriveKeyFromWords(words : string, pwd? : string, path : string, scheme : 'ed25519' | 'secp256k1' | 'p256') {
-//   const seed = bip39.mnemonicToSeedSync(words, pwd)
-//   const node = bip32.fromSeed(seed)
-// 
-//   const child = node.derivePath(path)
-//   const key_mapping = {
-//     ed25519: codec.prefix.ed25519_seed,
-//     secp256k1: codec.prefix.secp256k1_secret_key,
-//     p256: codec.prefix.p256_secret_key
-//   }
-// 
-//   const getKey = scheme === 'ed25519' ? getKeyFromSeed : getKeyFromSecretKey
-//   return getKey(codec.bs58checkEncode(child.privateKey, key_mapping[scheme]))
-// }
+export function deriveKeyFromWords(words : string, pwd? : string, path : string, scheme : 'ed25519' | 'secp256k1' | 'p256') {
+  const seed = bip39.mnemonicToSeedSync(words, pwd)
+  const key = deriveKey(seed, path, scheme)
+
+  const key_mapping = {
+    ed25519: codec.prefix.ed25519_seed,
+    secp256k1: codec.prefix.secp256k1_secret_key,
+    p256: codec.prefix.p256_secret_key
+  }
+
+  const getKey = scheme === 'ed25519' ? getKeyFromSeed : getKeyFromSecretKey
+  return getKey(codec.bs58checkEncode(key, key_mapping[scheme]))
+}
 
 export function signOperation(input_operation : Uint8Array | string, secret_key : string) {
   const operation_bytes = typeof input_operation === 'string' ? codec.fromHex(input_operation) : input_operation
@@ -333,5 +332,6 @@ export default {
   decryptKey,
   encryptKey,
   getKeyFromSecretKey,
-  signOperation
+  signOperation,
+  deriveKeyFromWords
 }
