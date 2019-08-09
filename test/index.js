@@ -1,6 +1,6 @@
 // @flow
 
-import TBCNext from '../PsBABY5n'
+import TBCNext from '../PsBABY5H'
 import TezBridgeCrypto from '../Pt24m4xi/index'
 import { assert } from './util'
 const TBC = TezBridgeCrypto
