@@ -5,10 +5,10 @@ import codec from './codec'
 
 const entries = [
   '%default',
-  ,'%root',
-  ,'%do',
-  ,'%set_delegate',
-  ,'%remove_delegate'
+  '%root',
+  '%do',
+  '%set_delegate',
+  '%remove_delegate'
 ]
 
 const entrypoint_mapping = {}

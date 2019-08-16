@@ -5,8 +5,6 @@ import TezBridgeCrypto from '../Pt24m4xi/index'
 import { assert } from './util'
 const TBC = TezBridgeCrypto
 
-console.log(TBC.codec.decodeRawBytes('01000000016C'))
-
 const fn_tests = async () => {
   {
     assert(
