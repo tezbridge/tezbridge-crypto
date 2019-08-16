@@ -4,11 +4,11 @@ import BN from 'bn.js'
 import codec from './codec'
 
 const entries = [
-  '%default',
-  '%root',
-  '%do',
-  '%set_delegate',
-  '%remove_delegate'
+  'default',
+  'root',
+  'do',
+  'set_delegate',
+  'remove_delegate'
 ]
 
 const entrypoint_mapping = {}
@@ -34,19 +34,21 @@ const op_hex2bytes = {
 
     result.push(codec.toTzBytes(op.destination))
 
-    result.push(op.parameters ? 'FF' : '00')
-    if (op.parameters) {
-      const parameters = codec.encodeRawBytes(op.parameters.value)
-      if (entries.indexOf(op.parameters.entrypoint) > -1)
-        result.push(entries[op.parameters.entrypoint])
-      else {
+    const is_default_parameter = op.parameters.entrypoint === entries[0]
+    result.push(is_default_parameter ? '00' : 'FF')
+    if (!is_default_parameter) {
+      const parameter_bytes = codec.encodeRawBytes(op.parameters.value)
+
+      if (entrypoint_mapping_reverse[op.parameters.entrypoint]){
+        result.push(entrypoint_mapping_reverse[op.parameters.entrypoint])
+      } else {
         const string_bytes = codec.encodeRawBytes({string: op.parameters.entrypoint})
         result.push('FF')
         result.push(string_bytes.slice(8))
       }
 
-      result.push((parameters.length / 2).toString(16).padStart(8, '0'))
-      result.push(parameters)
+      result.push((parameter_bytes.length / 2).toString(16).padStart(8, '0'))
+      result.push(parameter_bytes)
     }
 
     return result.join('')
