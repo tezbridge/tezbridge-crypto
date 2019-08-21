@@ -1,6 +1,6 @@
 {
   "name": "tezbridge-crypto",
-  "version": "1.0.50",
+  "version": "1.0.51",
   "description": "The TezBridge crypto library for Tezos blockchain in JavaScript with Flow type system",
   "main": "Pt24m4xi/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/tezbridge/tezbridge-crypto.git"
   },
   "author": "catsigma",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/tezbridge/tezbridge-crypto/issues"
   },
