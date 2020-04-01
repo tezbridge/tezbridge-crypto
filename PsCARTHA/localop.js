@@ -33,9 +33,9 @@ const op_hex2bytes = {
     })
 
     result.push(codec.toTzBytes(op.destination))
-
-    const is_default_parameter = op.parameters.entrypoint === entries[0]
-    result.push(is_default_parameter ? '00' : 'FF')
+    
+    const is_default_parameter = !op.parameters || op.parameters.entrypoint === entries[0]
+    result.push(is_default_parameter ? '00' : 'ff')
     if (!is_default_parameter) {
       const parameter_bytes = codec.encodeRawBytes(op.parameters.value)
 
@@ -43,7 +43,7 @@ const op_hex2bytes = {
         result.push(entrypoint_mapping_reverse[op.parameters.entrypoint])
       } else {
         const string_bytes = codec.encodeRawBytes({string: op.parameters.entrypoint})
-        result.push('FF')
+        result.push('ff')
         result.push(string_bytes.slice(8))
       }
 
@@ -63,18 +63,13 @@ const op_hex2bytes = {
       result.push(hex)
     })
 
-    // result.push(codec.toTzBytes(op.manager_pubkey, true))
-
     result.push(codec.encodeZarithUInt(op.balance))
 
-    // result.push(op.spendable ? 'FF' : '00')
-    // result.push(op.delegatable ? 'FF' : '00')
-    result.push(op.delegate ? 'FF' : '00')
+    result.push(op.delegate ? 'ff' : '00')
     if (op.delegate) {
       result.push(codec.toTzBytes(op.delegate, true))
     }
 
-    // result.push(op.script ? 'FF' : '00')
     if (op.script && op.script.code && op.script.storage) {
       const code = codec.encodeRawBytes(op.script.code)
       result.push((code.length / 2).toString(16).padStart(8, '0'))
@@ -97,7 +92,7 @@ const op_hex2bytes = {
       result.push(hex)
     })
 
-    result.push(op.delegate ? 'FF' : '00')
+    result.push(op.delegate ? 'ff' : '00')
     if (op.delegate) {
       result.push(codec.toTzBytes(op.delegate, true))
     }
@@ -136,7 +131,7 @@ export function forgeOperation(contents : Array<Object>, branch : string) {
 }
 
 export function parseOperationBytes(input : string) {
-  input = input.slice(64).toUpperCase()
+  input = input.slice(64).toLowerCase()
 
   let index = 0
 
@@ -167,6 +162,7 @@ export function parseOperationBytes(input : string) {
     const op_tag = read(2)
 
     if (op_tag === '6b') {
+      // reveal
       const source = codec.toTzStrValue(read(44))
       const fee = readUInt()
       const counter = readUInt()
@@ -185,7 +181,8 @@ export function parseOperationBytes(input : string) {
       })
 
     } else if (op_tag === '6c') {
-      const source = codec.toTzStrValue(read(44))
+      // transaction
+      const source = codec.toTzStrValue(read(42))
       const fee = readUInt()
       const counter = readUInt()
       const gas_limit = readUInt()
@@ -193,9 +190,9 @@ export function parseOperationBytes(input : string) {
       const amount = readUInt()
       const destination = codec.toTzStrValue(read(44))
       let parameters
-      if (read(2) === 'FF') {
+      if (read(2) === 'ff') {
         const entrypoint_mark = read(2)
-        if (entrypoint_mark === 'FF') {
+        if (entrypoint_mark === 'ff') {
           const size_byte = read(2)
           const size = parseInt(size_byte, 16)
           const entrypoint_bytes = read(size * 2)
@@ -229,7 +226,8 @@ export function parseOperationBytes(input : string) {
         parameters
       })
     } else if (op_tag === '6d') {
-      const source = codec.toTzStrValue(read(44))
+      // origination
+      const source = codec.toTzStrValue(read(42))
       const fee = readUInt()
       const counter = readUInt()
       const gas_limit = readUInt()
@@ -262,7 +260,8 @@ export function parseOperationBytes(input : string) {
         script
       })
     } else if (op_tag === '6e') {
-
+      console.log('6e')
+      // delegation
       const source = codec.toTzStrValue(read(44))
       const fee = readUInt()
       const counter = readUInt()
