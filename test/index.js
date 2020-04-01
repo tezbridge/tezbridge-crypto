@@ -198,10 +198,10 @@ const fn_tests = async () => {
     const branch = 'BKzNLgzWbHxYaDoWw9ZmYvfpD8Hv13jP78WWTBo1qsQ5Kvv7mmZ'
 
     {
-      const contents = [{"kind":"reveal","source":"tz1VmnFaZpk9gpGCG3z3vmQp27ioFC4noWqn","fee":"1300","counter":"625700", "gas_limit":"10000","storage_limit":"0","public_key":"edpkvXyEo9DcWmNEkubn73RQDDAkEyP3nAcmLvjpoeP3H1TPAkdUy1"}]
+      const contents = [{"kind":"reveal","source":"tz1VmnFaZpk9gpGCG3z3vmQp27ioFC4noWqn","fee":"1300","counter":"625700", "gas_limit":"10000","storage_limit":"0","public_key":"edpkvXyEo9DcWmNEkubn73RQDDAkEyP3nAcmLvjpoeP3H1TPAkdUy1"}, {"kind":"delegation","source":"tz1PZpJJ14CgnMJnMP1ikJc45BzQLqH32tBU","fee":"1420","counter":"2","gas_limit":"10000","storage_limit":"0","delegate": "tz1NRTQeqcuwybgrZfJavBY3of83u8uLpFBj"}]
       const forged_bytes = TBC.localop.forgeOperation(contents, branch)
       const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
-      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6b006f2888062d68043dcc67c8aa48b019851f142065940aa49826904e0000f9316b245bb72cd02cdd59f0760a770ecaa23e2c7c11711dd85db1b5f5f8e292', 'FN: forge reveal')
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6b006f2888062d68043dcc67c8aa48b019851f142065940aa49826904e0000f9316b245bb72cd02cdd59f0760a770ecaa23e2c7c11711dd85db1b5f5f8e2926e002b147e61fceb114a213f8144be4faf3a5535ef558c0b02904e00ff001e879a105f4e493c84322bb80051aa0585811e83', 'FN: forge reveal')
       assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse reveal bytes')
     }
 

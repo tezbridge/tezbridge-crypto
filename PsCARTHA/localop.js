@@ -168,7 +168,10 @@ export function parseOperationBytes(input : string) {
       const counter = readUInt()
       const gas_limit = readUInt()
       const storage_limit = readUInt()
-      const public_key = codec.toTzStrValue(read())
+      
+      const pk_tag = read(2)
+      index -= 2
+      const public_key = codec.toTzStrValue(read(pk_tag === '00' ? 66 : 68))
 
       output.push({
         kind: 'reveal',
