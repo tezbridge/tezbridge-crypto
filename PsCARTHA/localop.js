@@ -163,7 +163,7 @@ export function parseOperationBytes(input : string) {
 
     if (op_tag === '6b') {
       // reveal
-      const source = codec.toTzStrValue(read(44))
+      const source = codec.toTzStrValue(read(42))
       const fee = readUInt()
       const counter = readUInt()
       const gas_limit = readUInt()
@@ -260,9 +260,8 @@ export function parseOperationBytes(input : string) {
         script
       })
     } else if (op_tag === '6e') {
-      console.log('6e')
       // delegation
-      const source = codec.toTzStrValue(read(44))
+      const source = codec.toTzStrValue(read(42))
       const fee = readUInt()
       const counter = readUInt()
       const gas_limit = readUInt()

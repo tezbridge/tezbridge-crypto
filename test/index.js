@@ -197,31 +197,39 @@ const fn_tests = async () => {
   {
     const branch = 'BKzNLgzWbHxYaDoWw9ZmYvfpD8Hv13jP78WWTBo1qsQ5Kvv7mmZ'
 
-    const delegate_contents = [{"kind":"delegation","source":"tz1PZpJJ14CgnMJnMP1ikJc45BzQLqH32tBU","fee":"1420","counter":"2","gas_limit":"10000","storage_limit":"0","delegate": "tz1NRTQeqcuwybgrZfJavBY3of83u8uLpFBj"}]
-    const delegate_result = TBC.localop.forgeOperation(delegate_contents, branch)
+    {
+      const contents = [{"kind":"reveal","source":"tz1VmnFaZpk9gpGCG3z3vmQp27ioFC4noWqn","fee":"1300","counter":"625700", "gas_limit":"10000","storage_limit":"0","public_key":"edpkvXyEo9DcWmNEkubn73RQDDAkEyP3nAcmLvjpoeP3H1TPAkdUy1"}]
+      const forged_bytes = TBC.localop.forgeOperation(contents, branch)
+      const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6b006f2888062d68043dcc67c8aa48b019851f142065940aa49826904e0000f9316b245bb72cd02cdd59f0760a770ecaa23e2c7c11711dd85db1b5f5f8e292', 'FN: forge reveal')
+      assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse reveal bytes')
+    }
 
-    assert(delegate_result === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6e002b147e61fceb114a213f8144be4faf3a5535ef558c0b02904e00ff001e879a105f4e493c84322bb80051aa0585811e83', 'FN: local forgeOperation delegation')
+    {
+      const contents = [{"kind":"delegation","source":"tz1PZpJJ14CgnMJnMP1ikJc45BzQLqH32tBU","fee":"1420","counter":"2","gas_limit":"10000","storage_limit":"0","delegate": "tz1NRTQeqcuwybgrZfJavBY3of83u8uLpFBj"}]
+      const forged_bytes = TBC.localop.forgeOperation(contents, branch)
+      const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6e002b147e61fceb114a213f8144be4faf3a5535ef558c0b02904e00ff001e879a105f4e493c84322bb80051aa0585811e83', 'FN: forge delegate')
+      assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse delegate bytes')
+    }
 
-    const contents = [{"kind":"transaction","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"9455","counter":"5790","gas_limit":"10100","storage_limit":"0","amount":"10","destination":"tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB"},{"kind":"transaction","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"0","counter":"5791","gas_limit":"67891","storage_limit":"0","amount":"0","destination":"KT1AthoYG1RnR9wDrsk4euuXh22SteYmvoUC","parameters":{"entrypoint":"do","value":{"prim":"Right","args":[{"prim":"Left","args":[{"prim":"Pair","args":[{"string":"tz1bfQHTZv1oM78fA1MXreBHua7wvKvS5uCe"},{"prim":"Pair","args":[{"int":"1"},{"prim":"None"}]}]}]}]}}},{"kind":"origination","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"0","counter":"5792","gas_limit":"11603","storage_limit":"323","balance":"5","script":{"code":[{"prim":"parameter","args":[{"prim":"contract","args":[{"prim":"unit"}],"annots":[":X"]}]},{"prim":"storage","args":[{"prim":"unit"}]},{"prim":"code","args":[[{"prim":"CDR","annots":["@storage_slash_1"]},{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}]]}],"storage":{"prim":"Unit"}}}]
-    const result = TBC.localop.forgeOperation(contents, branch)
+    {
+      const contents = [{"kind":"transaction","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"9455","counter":"5790","gas_limit":"10100","storage_limit":"0","amount":"10","destination":"tz2L2HuhaaSnf6ShEDdhTEAr5jGPWPNwpvcB"},
+      {"kind":"transaction","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"0","counter":"5791","gas_limit":"67891","storage_limit":"0","amount":"0","destination":"KT1AthoYG1RnR9wDrsk4euuXh22SteYmvoUC","parameters":{"entrypoint":"do","value":{"prim":"Right","args":[{"prim":"Left","args":[{"prim":"Pair","args":[{"string":"tz1bfQHTZv1oM78fA1MXreBHua7wvKvS5uCe"},{"prim":"Pair","args":[{"int":"1"},{"prim":"None"}]}]}]}]}}}]
+      const forged_bytes = TBC.localop.forgeOperation(contents, branch)
+      const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6c007f3fb9969c45a907a20e487e14fc2347d15c0289ef499e2df44e000a0001806d2628efefae710659f622a5d667b12d379024006c007f3fb9969c45a907a20e487e14fc2347d15c0289009f2db392040000011954991caa46dee50c6c501cf962514ba43f71a800ff02000000350508050507070100000024747a3162665148545a76316f4d37386641314d587265424875613777764b765335754365070700010306', 'FN: forge transaction')
+      assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse transaction bytes')
+    }
 
-    assert(result === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6c007f3fb9969c45a907a20e487e14fc2347d15c0289ef499e2df44e000a0001806d2628efefae710659f622a5d667b12d379024006c007f3fb9969c45a907a20e487e14fc2347d15c0289009f2db392040000011954991caa46dee50c6c501cf962514ba43f71a800ff02000000350508050507070100000024747a3162665148545a76316f4d37386641314d587265424875613777764b7653357543650707000103066d007f3fb9969c45a907a20e487e14fc2347d15c028900a02dd35ac30205000000003802000000330500065a036c000000023a580501036c0502020000001c0417000000104073746f726167655f736c6173685f31053d036d034200000002030b', 'FN: local forgeOperation transaction')
-
-    const parse_result = TBC.localop.parseOperationBytes(result)
-    assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parseOperationBytes')
-
-    const sec_forge_result = TBC.localop.forgeOperation(parse_result, branch)
-    assert(result === sec_forge_result, 'FN: local forgeOperation 2')
-
-    const originate_contract = '3ed59b015fdfbb366651ceddced813912891e3a2ff68adf5a29c7cd2b38e45bf6d00f235a32922318fa7b0aa72604b6bdd2dbcd9100880b518d0a30280b518e0d4030000000000b302000000ae05000764036c036c0501036c0502020000009b0321051f02000000020317031609310000000f036c036c02000000060358034f032700000000020000000b051f02000000020321034c072e020000002603200200000019051f0200000010020000000b051f02000000020321034c034c053d036d0342020000002603200200000019051f0200000010020000000b051f02000000020321034c034c053d036d0342051f020000000603200320032000000002030b'
-    const originate_detail = TBC.localop.parseOperationBytes(originate_contract)
-
-    const answer = '[{"kind":"origination","source":"tz1hiiUL7SWtqWWJZqJamJjxZZYRgp8RFSYH","fee":"400000","counter":"37328","gas_limit":"400000","storage_limit":"60000","balance":"0","script":{"code":[{"prim":"parameter","args":[{"prim":"or","args":[{"prim":"unit"},{"prim":"unit"}]}]},{"prim":"storage","args":[{"prim":"unit"}]},{"prim":"code","args":[[{"prim":"DUP"},{"prim":"DIP","args":[[{"prim":"CDR"}]]},{"prim":"CAR"},{"prim":"LAMBDA","args":[{"prim":"unit"},{"prim":"unit"},[{"prim":"RENAME"},{"prim":"UNIT"},{"prim":"FAILWITH"}]]},[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}],{"prim":"IF_LEFT","args":[[{"prim":"DROP"},[{"prim":"DIP","args":[[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]]},{"prim":"SWAP"}],{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}],[{"prim":"DROP"},[{"prim":"DIP","args":[[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]]},{"prim":"SWAP"}],{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}]]},{"prim":"DIP","args":[[{"prim":"DROP"},{"prim":"DROP"},{"prim":"DROP"}]]}]]}],"storage":{"prim":"Unit"}}}]'
-    assert(JSON.stringify(originate_detail) === answer, 'FN: parseOperationBytes with LAMBDA')
-
-    const originate_local_forge = TBC.localop.forgeOperation(JSON.parse(answer), 'BLBxMbcPTcsVHV14iZwmCuk2LP1negRTMwovKMnbVMBFVFxae1t')
-    assert(originate_local_forge === originate_contract, 'FN: forgeOperation with LAMBDA')
-
+    {
+      const contents = [{"kind":"origination","source":"tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e","fee":"0","counter":"5792","gas_limit":"11603","storage_limit":"323","balance":"5","script":{"code":[{"prim":"parameter","args":[{"prim":"contract","args":[{"prim":"unit"}],"annots":[":X"]}]},{"prim":"storage","args":[{"prim":"unit"}]},{"prim":"code","args":[[{"prim":"CDR","annots":["@storage_slash_1"]},{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}]]}],"storage":{"prim":"Unit"}}},
+      {"kind":"origination","source":"tz1hiiUL7SWtqWWJZqJamJjxZZYRgp8RFSYH","fee":"400000","counter":"37328","gas_limit":"400000","storage_limit":"60000","balance":"0","script":{"code":[{"prim":"parameter","args":[{"prim":"or","args":[{"prim":"unit"},{"prim":"unit"}]}]},{"prim":"storage","args":[{"prim":"unit"}]},{"prim":"code","args":[[{"prim":"DUP"},{"prim":"DIP","args":[[{"prim":"CDR"}]]},{"prim":"CAR"},{"prim":"LAMBDA","args":[{"prim":"unit"},{"prim":"unit"},[{"prim":"RENAME"},{"prim":"UNIT"},{"prim":"FAILWITH"}]]},[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}],{"prim":"IF_LEFT","args":[[{"prim":"DROP"},[{"prim":"DIP","args":[[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]]},{"prim":"SWAP"}],{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}],[{"prim":"DROP"},[{"prim":"DIP","args":[[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]]},{"prim":"SWAP"}],{"prim":"NIL","args":[{"prim":"operation"}]},{"prim":"PAIR"}]]},{"prim":"DIP","args":[[{"prim":"DROP"},{"prim":"DROP"},{"prim":"DROP"}]]}]]}],"storage":{"prim":"Unit"}}}]
+      const forged_bytes = TBC.localop.forgeOperation(contents, branch)
+      const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6d007f3fb9969c45a907a20e487e14fc2347d15c028900a02dd35ac30205000000003802000000330500065a036c000000023a580501036c0502020000001c0417000000104073746f726167655f736c6173685f31053d036d034200000002030b6d00f235a32922318fa7b0aa72604b6bdd2dbcd9100880b518d0a30280b518e0d4030000000000b302000000ae05000764036c036c0501036c0502020000009b0321051f02000000020317031609310000000f036c036c02000000060358034f032700000000020000000b051f02000000020321034c072e020000002603200200000019051f0200000010020000000b051f02000000020321034c034c053d036d0342020000002603200200000019051f0200000010020000000b051f02000000020321034c034c053d036d0342051f020000000603200320032000000002030b', 'FN: forge origination')
+      assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse origination bytes')
+    }
   }
 
   {
