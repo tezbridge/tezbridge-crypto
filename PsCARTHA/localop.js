@@ -34,7 +34,9 @@ const op_hex2bytes = {
 
     result.push(codec.toTzBytes(op.destination))
     
-    const is_default_parameter = !op.parameters || op.parameters.entrypoint === entries[0]
+    const is_default_parameter = !op.parameters || 
+      (op.parameters.entrypoint === entries[0] && op.parameters.value.prim === 'Unit')
+      
     result.push(is_default_parameter ? '00' : 'ff')
     if (!is_default_parameter) {
       const parameter_bytes = codec.encodeRawBytes(op.parameters.value)

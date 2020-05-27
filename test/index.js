@@ -198,6 +198,22 @@ const fn_tests = async () => {
     const branch = 'BKzNLgzWbHxYaDoWw9ZmYvfpD8Hv13jP78WWTBo1qsQ5Kvv7mmZ'
 
     {
+      const contents = [{"kind":"transaction","source":"tz1fUuN4MLPVzBNMAKN9oBqmn5n6qSdP6Nfu","fee":"1040000","counter":"159689","gas_limit":"1040000","storage_limit":"60000","amount":"0","destination":"KT1B1RpHhAxserPAkiRKh7kbhbXoGPcbhw9D","parameters":{"entrypoint":"default","value":{"int":"1"}}}]
+      const forged_bytes = TBC.localop.forgeOperation(contents, branch)
+      const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6c00d9a8a785db39e1e983880ee513d8fa2b8bc83ca580bd3fc9df0980bd3fe0d40300011a9a2a1b245a6f6cce9e7fb6f72e39f430ec1a6700ff00000000020001', 'FN: forge default entrypoint with value')
+      assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse default entrypoint with value')
+    }
+    
+    {
+      const contents = [{"kind":"transaction","source":"tz1fUuN4MLPVzBNMAKN9oBqmn5n6qSdP6Nfu","fee":"1040000","counter":"159689","gas_limit":"1040000","storage_limit":"60000","amount":"0","destination":"KT1B1RpHhAxserPAkiRKh7kbhbXoGPcbhw9D"}]
+      const forged_bytes = TBC.localop.forgeOperation(contents, branch)
+      const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
+      assert(forged_bytes === '2486a054c6fd81db84d8e5c0f09cdf04311e88369a54f86923ad17499b59fb2a6c00d9a8a785db39e1e983880ee513d8fa2b8bc83ca580bd3fc9df0980bd3fe0d40300011a9a2a1b245a6f6cce9e7fb6f72e39f430ec1a670000', 'FN: forge default entrypoint')
+      assert(JSON.stringify(parse_result) === JSON.stringify(contents), 'FN: parse default entrypoint')
+    }
+
+    {
       const contents = [{"kind":"reveal","source":"tz1VmnFaZpk9gpGCG3z3vmQp27ioFC4noWqn","fee":"1300","counter":"625700", "gas_limit":"10000","storage_limit":"0","public_key":"edpkvXyEo9DcWmNEkubn73RQDDAkEyP3nAcmLvjpoeP3H1TPAkdUy1"}, {"kind":"delegation","source":"tz1PZpJJ14CgnMJnMP1ikJc45BzQLqH32tBU","fee":"1420","counter":"2","gas_limit":"10000","storage_limit":"0","delegate": "tz1NRTQeqcuwybgrZfJavBY3of83u8uLpFBj"}]
       const forged_bytes = TBC.localop.forgeOperation(contents, branch)
       const parse_result = TBC.localop.parseOperationBytes(forged_bytes)
