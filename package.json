@@ -31,7 +31,7 @@
     "bn.js": "^4.11.8",
     "bs58check": "^2.1.2",
     "coinstring": "^2.3.0",
-    "elliptic": "^6.5.2",
+    "elliptic": "^6.5.3",
     "secp256k1": "^3.8.0",
     "tweetnacl": "^1.0.3"
   },
