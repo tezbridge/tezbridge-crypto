@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
-    "bip39": "^3.0.2",
+    "bip39": "^3.1.0",
     "blakejs": "^1.1.0",
     "bn.js": "^4.11.9",
     "bs58check": "^2.1.2",
